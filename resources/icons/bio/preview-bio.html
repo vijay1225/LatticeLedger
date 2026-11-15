@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LatticeLedger - Bio-Inspired Icon Explorer</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 30px 20px 80px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    h1 {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #f59e0b, #10b981, #ec4899, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .badge-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Windows 11 Dark Taskbar */
+    .taskbar-dark {
+      background: rgba(24, 24, 27, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      margin-bottom: 24px;
+      height: 52px;
+    }
+
+    /* Windows 11 Light Taskbar */
+    .taskbar-light {
+      background: rgba(243, 243, 243, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+      margin-bottom: 36px;
+      height: 52px;
+    }
+
+    .tb-win-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tb-item {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .taskbar-dark .tb-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .taskbar-light .tb-item:hover { background: rgba(0, 0, 0, 0.06); }
+    
+    .tb-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: #0078d4;
+    }
+    .tb-item img, .tb-item svg {
+      width: 24px;
+      height: 24px;
+    }
+    .tb-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(150, 150, 150, 0.2);
+      margin: 0 4px;
+    }
+
+    /* Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .card-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    .preview-canvas {
+      width: 140px;
+      height: 140px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      background: radial-gradient(circle, #1a2236 0%, #0d121f 100%);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      position: relative;
+    }
+    .preview-canvas svg, .preview-canvas img {
+      width: 104px;
+      height: 104px;
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,0.4));
+    }
+
+    .card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .comparison-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: auto;
+    }
+    .comp-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Bio-Inspired Standalone Icon Explorer</h1>
+      <p class="subtitle">Nature-inspired knowledge glyphs with <strong>zero background box</strong> in vivid high-contrast colors</p>
+      <div class="badge-notice">
+        🌿 Pure Biomimicry • 100% Transparent Canvas • Extreme 24px Taskbar Visibility
+      </div>
+    </header>
+
+    <!-- 1. Dark Taskbar Simulation -->
+    <div class="section-title">
+      <span>🌙 Windows 11 Dark Taskbar (Actual 24px Scale)</span>
+    </div>
+    <div class="taskbar-dark">
+      <!-- Windows Start -->
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#00a4ef"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <!-- Common Apps -->
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <!-- Candidate B1 -->
+      <div class="tb-item active" title="Bio 1: The Golden Nautilus">
+        <img src="b1-golden-nautilus.svg" width="24" height="24">
+      </div>
+      <!-- Candidate B2 -->
+      <div class="tb-item" title="Bio 2: The Neural Leaf">
+        <img src="b2-neural-leaf.svg" width="24" height="24">
+      </div>
+      <!-- Candidate B3 -->
+      <div class="tb-item" title="Bio 3: The Synaptic Bloom">
+        <img src="b3-synaptic-bloom.svg" width="24" height="24">
+      </div>
+      <!-- Candidate B4 -->
+      <div class="tb-item" title="Bio 4: The Cellular Helix">
+        <img src="b4-cellular-helix.svg" width="24" height="24">
+      </div>
+      <!-- Candidate B5 -->
+      <div class="tb-item" title="Bio 5: The Mycelium Spore">
+        <img src="b5-mycelium-spore.svg" width="24" height="24">
+      </div>
+    </div>
+
+    <!-- 2. Light Taskbar Simulation -->
+    <div class="section-title">
+      <span>☀️ Windows 11 Light Taskbar (Actual 24px Scale)</span>
+    </div>
+    <div class="taskbar-light">
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#0078d4"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <div class="tb-item active" title="Bio 1: The Golden Nautilus">
+        <img src="b1-golden-nautilus.svg" width="24" height="24">
+      </div>
+      <div class="tb-item" title="Bio 2: The Neural Leaf">
+        <img src="b2-neural-leaf.svg" width="24" height="24">
+      </div>
+      <div class="tb-item" title="Bio 3: The Synaptic Bloom">
+        <img src="b3-synaptic-bloom.svg" width="24" height="24">
+      </div>
+      <div class="tb-item" title="Bio 4: The Cellular Helix">
+        <img src="b4-cellular-helix.svg" width="24" height="24">
+      </div>
+      <div class="tb-item" title="Bio 5: The Mycelium Spore">
+        <img src="b5-mycelium-spore.svg" width="24" height="24">
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="section-title">
+      <span>🌿 5 Bio-Inspired Candidates Detailed Inspection</span>
+    </div>
+
+    <div class="grid">
+      <!-- Bio 1 -->
+      <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
+        <span class="card-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Bio Concept 1</span>
+        <div class="preview-canvas">
+          <img src="b1-golden-nautilus.svg" alt="Bio 1">
+        </div>
+        <h3>The Golden Nautilus</h3>
+        <p><strong>Fibonacci Growth Spiral</strong>: Nature's symbol of evergreen expanding knowledge. Golden Amber & Coral chambers wrapping around a radiant pearl.</p>
+        <div class="comparison-row">
+          <div class="comp-item">
+            <img src="b1-golden-nautilus.svg" width="20" height="20">
+            <span>20px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b1-golden-nautilus.svg" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b1-golden-nautilus.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b1-golden-nautilus.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio 2 -->
+      <div class="card" style="border-color: rgba(16, 185, 129, 0.4);">
+        <span class="card-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">Bio Concept 2</span>
+        <div class="preview-canvas">
+          <img src="b2-neural-leaf.svg" alt="Bio 2">
+        </div>
+        <h3>The Neural Leaf</h3>
+        <p><strong>Living Venation</strong>: An evergreen organic leaf with branching white veins representing bi-directional wiki-links. Electric Cyan to Mint gradient.</p>
+        <div class="comparison-row">
+          <div class="comp-item">
+            <img src="b2-neural-leaf.svg" width="20" height="20">
+            <span>20px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2-neural-leaf.svg" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2-neural-leaf.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2-neural-leaf.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio 3 -->
+      <div class="card" style="border-color: rgba(236, 72, 153, 0.4);">
+        <span class="card-badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6;">Bio Concept 3</span>
+        <div class="preview-canvas">
+          <img src="b3-synaptic-bloom.svg" alt="Bio 3">
+        </div>
+        <h3>The Synaptic Bloom</h3>
+        <p><strong>Knowledge Blossom</strong>: Radiant multi-petal lotus/orchid in Electric Magenta & Royal Violet with golden stamen core. Instant high-contrast recognition.</p>
+        <div class="comparison-row">
+          <div class="comp-item">
+            <img src="b3-synaptic-bloom.svg" width="20" height="20">
+            <span>20px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b3-synaptic-bloom.svg" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b3-synaptic-bloom.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b3-synaptic-bloom.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio 4 -->
+      <div class="card" style="border-color: rgba(0, 120, 212, 0.4);">
+        <span class="card-badge" style="background: rgba(0, 120, 212, 0.2); color: #38bdf8;">Bio Concept 4</span>
+        <div class="preview-canvas">
+          <img src="b4-cellular-helix.svg" alt="Bio 4">
+        </div>
+        <h3>The Cellular Helix</h3>
+        <p><strong>DNA Thought Code</strong>: Nature's permanent information storage. Two intertwined ribbons in Flame Tangerine & Electric Azure linked by knowledge rungs.</p>
+        <div class="comparison-row">
+          <div class="comp-item">
+            <img src="b4-cellular-helix.svg" width="20" height="20">
+            <span>20px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b4-cellular-helix.svg" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b4-cellular-helix.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b4-cellular-helix.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio 5 -->
+      <div class="card" style="border-color: rgba(249, 115, 22, 0.4);">
+        <span class="card-badge" style="background: rgba(249, 115, 22, 0.2); color: #fb923c;">Bio Concept 5</span>
+        <div class="preview-canvas">
+          <img src="b5-mycelium-spore.svg" alt="Bio 5">
+        </div>
+        <h3>The Mycelium Spore</h3>
+        <p><strong>Nature's Internet</strong>: Underground root hyphae network carrying wisdom between trees. Warm Sunset Coral cap with glowing bioluminescent root nodes.</p>
+        <div class="comparison-row">
+          <div class="comp-item">
+            <img src="b5-mycelium-spore.svg" width="20" height="20">
+            <span>20px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b5-mycelium-spore.svg" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b5-mycelium-spore.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b5-mycelium-spore.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

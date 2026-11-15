@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LatticeLedger - Taskbar Icon Explorer</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --emerald: #10b981;
+      --cyan: #38bdf8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 30px 20px 80px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #38bdf8, #10b981, #a7f3d0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    /* Taskbar Section */
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .taskbar-mockup {
+      background: rgba(24, 24, 27, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      margin-bottom: 32px;
+      height: 52px;
+    }
+    .tb-win-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0078d4;
+    }
+    .tb-item {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .tb-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .tb-item.active {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .tb-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--cyan);
+    }
+    .tb-item img, .tb-item svg {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+    }
+    .tb-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.12);
+      margin: 0 4px;
+    }
+
+    /* Grid of Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: var(--emerald);
+      transform: translateY(-3px);
+    }
+    .card-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      margin-bottom: 12px;
+    }
+    .icon-preview-box {
+      width: 128px;
+      height: 128px;
+      background: #000;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .icon-preview-box img, .icon-preview-box svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .scales-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      width: 100%;
+      margin-top: auto;
+    }
+    .scale-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .scale-item img, .scale-item svg {
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Windows Taskbar & Authenticity Preview</h1>
+      <p class="subtitle">See how each simple, authentic icon candidate looks at true taskbar size (24px & 32px)</p>
+    </header>
+
+    <!-- Interactive Taskbar Simulation -->
+    <div class="section-title">
+      <span>🖥️ Windows 11 Taskbar (Actual 24px / 32px Scale)</span>
+    </div>
+    <div class="taskbar-mockup">
+      <!-- Windows Start -->
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#00a4ef"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <!-- Common Apps for context -->
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <!-- Candidate 1 -->
+      <div class="tb-item active" title="Option 1: Bold Hex Lattice">
+        <img src="rendered/v1-hex-standalone_24.png" alt="Opt 1 (24px)">
+      </div>
+      <!-- Candidate 2 -->
+      <div class="tb-item" title="Option 2: Infinity Knowledge Knot">
+        <img src="rendered/v2-infinity-knot_24.png" alt="Opt 2 (24px)">
+      </div>
+      <!-- Candidate 3 -->
+      <div class="tb-item" title="Option 3: Minimalist Ledger Wings">
+        <img src="rendered/v3-open-ledger_24.png" alt="Opt 3 (24px)">
+      </div>
+      <!-- Candidate 4 -->
+      <div class="tb-item" title="Option 4: Crystal Lattice Nexus">
+        <img src="rendered/v4-crystal-nexus_24.png" alt="Opt 4 (24px)">
+      </div>
+    </div>
+
+    <!-- Cards Breakdown -->
+    <div class="section-title">
+      <span>🔍 Candidate Glyphs Detailed Inspection</span>
+    </div>
+
+    <div class="grid">
+      <!-- Option 1 -->
+      <div class="card">
+        <span class="card-badge">Option 1</span>
+        <div class="icon-preview-box">
+          <img src="v1-hex-standalone.jpg" alt="Option 1">
+        </div>
+        <h3>Bold Hex Lattice</h3>
+        <p>A thick, high-contrast geometric hexagon lattice with prominent emerald & cyan nodes. Extreme clarity at 24px.</p>
+        <div class="scales-row">
+          <div class="scale-item">
+            <img src="rendered/v1-hex-standalone_24.png" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v1-hex-standalone_32.png" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v1-hex-standalone_48.png" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 2 -->
+      <div class="card">
+        <span class="card-badge">Option 2</span>
+        <div class="icon-preview-box">
+          <img src="v2-infinity-knot.jpg" alt="Option 2">
+        </div>
+        <h3>Infinity Knowledge Knot</h3>
+        <p>A sleek, continuous flowing infinity ribbon with interconnected lattice node junctions. Very modern like Linear or Raycast.</p>
+        <div class="scales-row">
+          <div class="scale-item">
+            <img src="rendered/v2-infinity-knot_24.png" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v2-infinity-knot_32.png" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v2-infinity-knot_48.png" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 3 -->
+      <div class="card">
+        <span class="card-badge">Option 3</span>
+        <div class="icon-preview-box">
+          <img src="v3-open-ledger.jpg" alt="Option 3">
+        </div>
+        <h3>Minimalist Ledger Wings</h3>
+        <p>An open notebook / ledger silhouette integrated with a central glowing neural lattice bridge and AI beacon.</p>
+        <div class="scales-row">
+          <div class="scale-item">
+            <img src="rendered/v3-open-ledger_24.png" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v3-open-ledger_32.png" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v3-open-ledger_48.png" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 4 -->
+      <div class="card">
+        <span class="card-badge">Option 4</span>
+        <div class="icon-preview-box">
+          <img src="v4-crystal-nexus.jpg" alt="Option 4">
+        </div>
+        <h3>Crystal Lattice Nexus</h3>
+        <p>A bold faceted crystal glyph with sharp contours and glowing vertex network lines. Solid, authentic desktop presence.</p>
+        <div class="scales-row">
+          <div class="scale-item">
+            <img src="rendered/v4-crystal-nexus_24.png" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v4-crystal-nexus_32.png" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="scale-item">
+            <img src="rendered/v4-crystal-nexus_48.png" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 5 (Vector SVG) -->
+      <div class="card">
+        <span class="card-badge">Option 5 (Pure Vector)</span>
+        <div class="icon-preview-box">
+          <img src="v5-delta-nexus.svg" alt="Option 5">
+        </div>
+        <h3>The Delta Tri-Nexus</h3>
+        <p>A pure, ultra-minimalist triad of 3 glowing orbital hubs connected by thick lattice struts to a central AI core. Unrivaled 16px/24px sharpness.</p>
+        <div class="scales-row">
+          <div class="scale-item">
+            <img src="v5-delta-nexus.svg" width="24" height="24">
+            <span>24px</span>
+          </div>
+          <div class="scale-item">
+            <img src="v5-delta-nexus.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="scale-item">
+            <img src="v5-delta-nexus.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

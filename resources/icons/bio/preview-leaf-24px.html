@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LatticeLedger - 24px Leaf Icon Explorer (Warm + Cool)</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --orange: #f97316;
+      --cyan: #00f2fe;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 30px 20px 80px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #f97316, #fbbf24, #00f2fe, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .badge-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      color: #fb923c;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Windows 11 Dark Taskbar */
+    .taskbar-dark {
+      background: rgba(24, 24, 27, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      margin-bottom: 24px;
+      height: 52px;
+    }
+
+    /* Windows 11 Light Taskbar */
+    .taskbar-light {
+      background: rgba(243, 243, 243, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+      margin-bottom: 36px;
+      height: 52px;
+    }
+
+    .tb-win-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tb-item {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .taskbar-dark .tb-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .taskbar-light .tb-item:hover { background: rgba(0, 0, 0, 0.06); }
+    
+    .tb-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: #0078d4;
+    }
+    .tb-item img, .tb-item svg {
+      width: 24px;
+      height: 24px;
+    }
+    .tb-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(150, 150, 150, 0.2);
+      margin: 0 4px;
+    }
+
+    /* Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .card-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    .preview-canvas {
+      width: 140px;
+      height: 140px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      background: radial-gradient(circle, #1a2236 0%, #0d121f 100%);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      position: relative;
+    }
+    .preview-canvas svg, .preview-canvas img {
+      width: 104px;
+      height: 104px;
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,0.4));
+    }
+
+    .card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .comparison-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: auto;
+    }
+    .comp-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .highlight-24px {
+      border: 1px solid var(--orange);
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(249, 115, 22, 0.15);
+      font-weight: 700;
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Biological Leaf Icons in 24px Taskbar Scale</h1>
+      <p class="subtitle">Exploring <strong>Concept 2 (Living Leaf Foliage)</strong> with <strong>Warm Flame & Cool Cyan</strong> dual-chroma contrast</p>
+      <div class="badge-notice">
+        🍂 Warm (Amber/Coral) + ❄️ Cool (Electric Cyan) • 100% Transparent Canvas • Standalone 24px Optimized
+      </div>
+    </header>
+
+    <!-- 1. Dark Taskbar Simulation (24px True Scale) -->
+    <div class="section-title">
+      <span>🌙 Windows 11 Dark Taskbar (True 24px Scale)</span>
+    </div>
+    <div class="taskbar-dark">
+      <!-- Windows Start -->
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#00a4ef"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <!-- Common Apps -->
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <!-- Type 2A -->
+      <div class="tb-item active" title="Type 2A: Dual-Chroma Neural Leaf">
+        <img src="b2a-dual-chroma-leaf.svg" width="24" height="24">
+      </div>
+      <!-- Type 2B -->
+      <div class="tb-item" title="Type 2B: Aurora Ginkgo Fan">
+        <img src="b2b-aurora-ginkgo.svg" width="24" height="24">
+      </div>
+      <!-- Type 2C -->
+      <div class="tb-item" title="Type 2C: Flame-Cyan Monstera">
+        <img src="b2c-flame-monstera.svg" width="24" height="24">
+      </div>
+    </div>
+
+    <!-- 2. Light Taskbar Simulation (24px True Scale) -->
+    <div class="section-title">
+      <span>☀️ Windows 11 Light Taskbar (True 24px Scale)</span>
+    </div>
+    <div class="taskbar-light">
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#0078d4"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <div class="tb-item active" title="Type 2A: Dual-Chroma Neural Leaf">
+        <img src="b2a-dual-chroma-leaf.svg" width="24" height="24">
+      </div>
+      <div class="tb-item" title="Type 2B: Aurora Ginkgo Fan">
+        <img src="b2b-aurora-ginkgo.svg" width="24" height="24">
+      </div>
+      <div class="tb-item" title="Type 2C: Flame-Cyan Monstera">
+        <img src="b2c-flame-monstera.svg" width="24" height="24">
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="section-title">
+      <span>🌿 3 Variations of Concept 2: The Biological Leaf</span>
+    </div>
+
+    <div class="grid">
+      <!-- Type 2A -->
+      <div class="card" style="border-color: rgba(249, 115, 22, 0.4);">
+        <span class="card-badge" style="background: rgba(249, 115, 22, 0.2); color: #fb923c;">Type 2A • Split Halves</span>
+        <div class="preview-canvas">
+          <img src="b2a-dual-chroma-leaf.svg" alt="Type 2A">
+        </div>
+        <h3>Dual-Chroma Neural Leaf</h3>
+        <p>A living leaf split into <strong>Warm Tangerine (Left)</strong> for Quick Notes and <strong>Cool Electric Cyan (Right)</strong> for Wiki Pages, bridged by a glowing white stem.</p>
+        <div class="comparison-row">
+          <div class="comp-item highlight-24px">
+            <img src="b2a-dual-chroma-leaf.svg" width="24" height="24">
+            <span>24px (Taskbar)</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2a-dual-chroma-leaf.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2a-dual-chroma-leaf.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type 2B -->
+      <div class="card" style="border-color: rgba(0, 242, 254, 0.4);">
+        <span class="card-badge" style="background: rgba(0, 242, 254, 0.2); color: #38bdf8;">Type 2B • Fan Canopy</span>
+        <div class="preview-canvas">
+          <img src="b2b-aurora-ginkgo.svg" alt="Type 2B">
+        </div>
+        <h3>Aurora Ginkgo Fan</h3>
+        <p>The ancient Ginkgo leaf (nature's symbol of memory & resilience). Radiates from a <strong>Warm Coral base</strong> into an <strong>Electric Cyan outer canopy</strong> with fluted white veins.</p>
+        <div class="comparison-row">
+          <div class="comp-item highlight-24px">
+            <img src="b2b-aurora-ginkgo.svg" width="24" height="24">
+            <span>24px (Taskbar)</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2b-aurora-ginkgo.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2b-aurora-ginkgo.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type 2C -->
+      <div class="card" style="border-color: rgba(251, 191, 36, 0.4);">
+        <span class="card-badge" style="background: rgba(251, 191, 36, 0.2); color: #fde047;">Type 2C • Fenestrated</span>
+        <div class="preview-canvas">
+          <img src="b2c-flame-monstera.svg" alt="Type 2C">
+        </div>
+        <h3>Flame-Cyan Monstera</h3>
+        <p>A tropical Monstera leaf with iconic cutouts. <strong>Warm Flame Coral</strong> transitions diagonally into <strong>Ice Cyan</strong> with white-hot dewdrops.</p>
+        <div class="comparison-row">
+          <div class="comp-item highlight-24px">
+            <img src="b2c-flame-monstera.svg" width="24" height="24">
+            <span>24px (Taskbar)</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2c-flame-monstera.svg" width="32" height="32">
+            <span>32px</span>
+          </div>
+          <div class="comp-item">
+            <img src="b2c-flame-monstera.svg" width="48" height="48">
+            <span>48px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

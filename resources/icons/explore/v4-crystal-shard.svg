@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <radialGradient id="crystBg" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="70%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+
+    <!-- Crystal Facet Gradients -->
+    <linearGradient id="facetTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="facetLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+
+    <linearGradient id="facetRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <filter id="crystGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark Squircle Background -->
+  <rect x="20" y="20" width="472" height="472" rx="116" fill="url(#crystBg)" stroke="#1e293b" stroke-width="4"/>
+
+  <!-- Bold Crystal Gem Facets -->
+  <!-- Top Apex Facet -->
+  <polygon points="256,90 380,180 256,260 132,180" fill="url(#facetTop)" opacity="0.95"/>
+  <!-- Left Bottom Facet -->
+  <polygon points="132,180 256,260 256,420 180,350" fill="url(#facetLeft)" opacity="0.9"/>
+  <!-- Right Bottom Facet -->
+  <polygon points="380,180 256,260 256,420 332,350" fill="url(#facetRight)" opacity="0.85"/>
+
+  <!-- Thick Illuminated Lattice Edges on Facets -->
+  <g stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#crystGlow)">
+    <line x1="256" y1="90" x2="380" y2="180"/>
+    <line x1="380" y1="180" x2="256" y2="420"/>
+    <line x1="256" y1="420" x2="132" y2="180"/>
+    <line x1="132" y1="180" x2="256" y2="90"/>
+    <!-- Central Ridge -->
+    <line x1="256" y1="90" x2="256" y2="420" stroke-width="12" stroke="#38bdf8"/>
+    <!-- Horizontal Cross Beam -->
+    <line x1="132" y1="180" x2="380" y2="180" stroke-width="10" stroke="#10b981"/>
+  </g>
+
+  <!-- High-Luminance Nodes at Vertices -->
+  <circle cx="256" cy="90" r="22" fill="#ffffff" stroke="#38bdf8" stroke-width="5" filter="url(#crystGlow)"/>
+  <circle cx="132" cy="180" r="20" fill="#38bdf8" stroke="#ffffff" stroke-width="4"/>
+  <circle cx="380" cy="180" r="20" fill="#10b981" stroke="#ffffff" stroke-width="4"/>
+  <circle cx="256" cy="260" r="26" fill="#10b981" stroke="#ffffff" stroke-width="5" filter="url(#crystGlow)"/>
+  <circle cx="256" cy="420" r="22" fill="#059669" stroke="#ffffff" stroke-width="4"/>
+</svg>

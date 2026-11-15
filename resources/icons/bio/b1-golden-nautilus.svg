@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Vibrant Amber-Coral-Gold Gradient -->
+    <linearGradient id="nautilusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="25%" stop-color="#f59e0b"/>
+      <stop offset="65%" stop-color="#ff5722"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+
+    <!-- Pearl Core Glow -->
+    <radialGradient id="pearlGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </radialGradient>
+
+    <filter id="nautGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- PURE STANDALONE BIO-SYMBOL - NO BACKGROUND BOX -->
+
+  <!-- Outer Sweeping Chamber Facet (Solid Silhouette) -->
+  <path d="M 256 36 
+           C 390 36, 476 130, 476 264 
+           C 476 394, 380 476, 256 476 
+           C 136 476, 44 384, 44 264 
+           C 44 164, 114 96, 204 96
+           C 284 96, 344 148, 344 224
+           C 344 290, 298 334, 240 334
+           C 192 334, 160 300, 160 256
+           C 160 224, 184 200, 214 200
+           C 236 200, 252 216, 252 238
+           C 252 250, 244 258, 234 258
+           C 228 258, 222 252, 222 246"
+        fill="none" 
+        stroke="url(#nautilusGrad)" 
+        stroke-width="36" 
+        stroke-linecap="round" 
+        filter="url(#nautGlow)"/>
+
+  <!-- Radial Chamber Septa Lines (The Interconnected Knowledge Chambers) -->
+  <g stroke="#ffffff" stroke-width="10" stroke-linecap="round" opacity="0.9">
+    <line x1="256" y1="36" x2="204" y2="96"/>
+    <line x1="390" y1="80" x2="280" y2="124"/>
+    <line x1="470" y1="200" x2="340" y2="190"/>
+    <line x1="460" y1="330" x2="330" y2="270"/>
+    <line x1="360" y1="440" x2="270" y2="330"/>
+    <line x1="210" y1="466" x2="200" y2="330"/>
+    <line x1="80" y1="360" x2="168" y2="290"/>
+  </g>
+
+  <!-- Glowing Knowledge Pearls at Chamber Junctions -->
+  <circle cx="256" cy="36" r="20" fill="#ffffff" stroke="#f59e0b" stroke-width="5"/>
+  <circle cx="476" cy="264" r="22" fill="#ffffff" stroke="#ff5722" stroke-width="5"/>
+  <circle cx="256" cy="476" r="22" fill="#ffffff" stroke="#e11d48" stroke-width="5"/>
+  <circle cx="44" cy="264" r="20" fill="#ffffff" stroke="#f59e0b" stroke-width="5"/>
+
+  <!-- Golden Core Pearl (Center of Wisdom) -->
+  <circle cx="230" cy="246" r="26" fill="url(#pearlGlow)" stroke="#ffffff" stroke-width="6" filter="url(#nautGlow)"/>
+</svg>
