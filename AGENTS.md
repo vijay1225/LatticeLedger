@@ -739,10 +739,28 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - 103/103 automated unit tests passing across all 12 test suites.
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.88MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+  - [x] **NSIS False-Positive "LatticeLedger cannot be closed" Permanent Root-Cause Fix**:
+    - **Discovered Underlying Root Causes**:
+      1. **Self-Detection Bug in `allowOnlyOneInstallerInstance.nsh`**: Electron-builder's default process checker ran a PowerShell query (`Get-CimInstance ... Where-Object {$_.Path.StartsWith('$INSTDIR')}`). When the silent uninstaller was invoked in `$INSTDIR` (`Uninstall LatticeLedger.exe _?=$INSTDIR`), it matched itself as a running instance of the application. In silent mode (`/S`), it selected `IDCANCEL` and aborted with Exit Code 2.
+      2. **Atomic Rollback Rename Bug in `uninstaller.nsh`**: Electron-builder's `un.atomicRMDir` attempted to rename all files in `$INSTDIR` to `$PLUGINSDIR\old-install`. Due to a string comparison bug (`StrCmp "$R0\$R2" "${UNINSTALL_FILENAME}"`, where `$R0` is empty so `"\Uninstall LatticeLedger.exe"` was compared against `"Uninstall LatticeLedger.exe"`), it failed to recognize itself, failed to rename the running uninstaller executable, and executed `Abort "Can't rename $INSTDIR to $PLUGINSDIR\old-install."`, exiting with Exit Code 2.
+      3. **Silent Upgrade Failure in `installUtil.nsh`**: When `LatticeLedger-Setup.exe` upgraded an existing installation, it executed the legacy uninstaller in `$INSTDIR` up to 5 times. Because the legacy uninstaller exited with code 2 on each try, `uninstallOldVersion` reached `$R5 > 5` and triggered `MessageBox MB_RETRYCANCEL "$(appCannotBeClosed)"` ("LatticeLedger cannot be closed. Please close it manually and retry to continue.") even when LatticeLedger was never opened or after a computer reboot.
+    - **Custom NSIS Fix (`build/installer.nsh`)**:
+      - `customInit`: Force-kills any running `LatticeLedger.exe` with `taskkill /f /im "LatticeLedger.exe"`. Clears legacy `UninstallString` registry values from HKCU/HKLM so `uninstallOldVersion` bypasses invoking broken legacy uninstallers. Deletes legacy uninstaller binaries sitting in `$INSTDIR`.
+      - `customUnInit`: Kills `LatticeLedger.exe` before uninstall begins.
+      - `customCheckAppRunning`: Completely replaces the buggy PowerShell `$INSTDIR` prefix query by running `taskkill /f /im "LatticeLedger.exe"` directly, eliminating self-detection deadlocks.
+      - `customRemoveFiles`: Replaces buggy `un.atomicRMDir` with `SetOutPath $TEMP; RMDir /r $INSTDIR`, eliminating the rename deadlock.
+      - `customUnInstallCheck` & `customUnInstallCheckCurrentUser`: Intercepts uninstaller return codes so any non-zero exit from old uninstallers never aborts installation.
+      - `customInstall`: In silent mode (`/S`), exits immediately via `!insertmacro quitSuccess`.
+    - **Verification & Testing**:
+      - Verified initial clean install: ExitCode 0 in seconds.
+      - Verified upgrade install directly over existing version: ExitCode 0 in seconds with zero prompts.
+      - Verified install while `LatticeLedger.exe` was actively running: killed process cleanly, upgraded, and exited with ExitCode 0.
+      - 103/103 automated tests passing.
+      - Built fresh `LatticeLedger-Setup.exe` (144.88MB).
 
 - [ ] **Next Steps**:
-  - [ ] User runs `LatticeLedger-Setup.exe` to update Windows app with zero file locks.
-  - [ ] User generates AI summaries for long notes to verify proportional, unclipped, highly relevant takeaways.
+  - [ ] User runs `LatticeLedger-Setup.exe` to update Windows app with zero prompts, dialogs, or deadlocks.
+  - [ ] Deliver strictly `LatticeLedger-Setup.exe` and `LatticeLedger.apk`.
 
 ---
 

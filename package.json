@@ -36,7 +36,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "artifactName": "LatticeLedger-Setup.${ext}",
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "include": "build/installer.nsh"
     }
   },
   "dependencies": {
