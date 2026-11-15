@@ -768,17 +768,56 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
   const handleInsertImage = (src: string, alt?: string, title?: string) => {
     if (!editor) return;
-    editor.chain().focus().insertContent(`\n![${alt || 'Image'}](${src}${title ? ` "${title}"` : ''})\n`).run();
+    const cleanAlt = alt || 'Image';
+    const cleanTitle = title ? ` "${title}"` : '';
+    const markdownImg = `\n![${cleanAlt}](${src}${cleanTitle})\n`;
+
+    try {
+      editor.commands.focus();
+    } catch {}
+
+    let inserted = false;
+    try {
+      inserted = editor.commands.insertContent(markdownImg);
+    } catch (e) {
+      console.warn('[NoteEditor] Primary insertContent failed:', e);
+    }
+
+    if (!inserted) {
+      try {
+        const endPos = editor.state.doc.content.size;
+        editor.commands.insertContentAt(endPos, markdownImg);
+        inserted = true;
+      } catch (e2) {
+        console.error('[NoteEditor] Fallback insertContentAt failed:', e2);
+      }
+    }
   };
 
   const handleInsertVideo = (src: string, isEmbed?: boolean) => {
     if (!editor) return;
-    if (isEmbed) {
-      const embedUrl = getYoutubeEmbedUrl(src);
-      const isShort = isYoutubeShort(src);
-      editor.chain().focus().insertContent(`\n<iframe src="${embedUrl}" ${isShort ? 'data-is-short="true"' : ''} allowfullscreen></iframe>\n`).run();
-    } else {
-      editor.chain().focus().insertContent(`\n<video src="${src}" controls></video>\n`).run();
+    const snippet = isEmbed 
+      ? `\n<iframe src="${getYoutubeEmbedUrl(src)}" ${isYoutubeShort(src) ? 'data-is-short="true"' : ''} allowfullscreen></iframe>\n`
+      : `\n<video src="${src}" controls></video>\n`;
+
+    try {
+      editor.commands.focus();
+    } catch {}
+
+    let inserted = false;
+    try {
+      inserted = editor.commands.insertContent(snippet);
+    } catch (e) {
+      console.warn('[NoteEditor] Primary video insertContent failed:', e);
+    }
+
+    if (!inserted) {
+      try {
+        const endPos = editor.state.doc.content.size;
+        editor.commands.insertContentAt(endPos, snippet);
+      } catch (e2) {
+        console.error('[NoteEditor] Fallback video insertContentAt failed:', e2);
+      }
     }
   };
 
@@ -1117,7 +1156,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         </div>
       )}
 
-      {/* ALWAYS EXPANDED AI SUMMARY CARD (Strictly <= 4 lines) */}
+      {/* ALWAYS EXPANDED AI SUMMARY CARD (Complete, unclipped takeaways & action items) */}
       <AISummaryCard
         summary={note.summary}
         onRefresh={onRefreshSummary}

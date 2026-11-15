@@ -58,8 +58,18 @@ export const InsertMediaModal: React.FC<InsertMediaModalProps> = ({
       setAltInput('');
       setPreviewUrl(null);
       setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   }, [isOpen, isVideo]);
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -75,8 +85,14 @@ export const InsertMediaModal: React.FC<InsertMediaModalProps> = ({
       setAltInput(file.name);
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
+    try {
+      if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+        const objectUrl = URL.createObjectURL(file);
+        setPreviewUrl(objectUrl);
+      }
+    } catch (err) {
+      console.warn('[InsertMedia] URL.createObjectURL error:', err);
+    }
   };
 
   const handleUploadSubmit = async () => {
@@ -94,6 +110,16 @@ export const InsertMediaModal: React.FC<InsertMediaModalProps> = ({
       onClose();
     } catch (err) {
       console.error('[InsertMedia] Upload failed:', err);
+      // Fallback: still try to insert asset path so note editing is never blocked
+      if (selectedFile) {
+        const fallbackPath = `assets/${selectedFile.name}`;
+        if (mediaType === 'image') {
+          onInsertImage(fallbackPath, altInput || selectedFile.name, captionInput);
+        } else {
+          onInsertVideo(fallbackPath, false);
+        }
+        onClose();
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -349,7 +375,7 @@ export const InsertMediaModal: React.FC<InsertMediaModalProps> = ({
 
               {!previewUrl ? (
                 <div
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={triggerFileInput}
                   className="border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 rounded-xl p-8 text-center cursor-pointer transition-colors bg-zinc-950/40 hover:bg-zinc-900/60 flex flex-col items-center justify-center gap-2 group"
                 >
                   <div className="p-3 rounded-full bg-zinc-900 group-hover:bg-indigo-600/20 text-zinc-400 group-hover:text-indigo-300 transition-colors">

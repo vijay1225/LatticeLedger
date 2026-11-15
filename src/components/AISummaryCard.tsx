@@ -25,8 +25,17 @@ export const AISummaryCard: React.FC<AISummaryCardProps> = ({
 
   const handleCopy = () => {
     if (!summary) return;
-    const text = `AI Summary: ${summary.tldr.join(' ')} ${summary.tags.join(' ')}`;
-    navigator.clipboard.writeText(text);
+    const parts: string[] = [];
+    if (summary.tldr && summary.tldr.length > 0) {
+      parts.push(`AI Summary:\n${summary.tldr.map(p => `• ${p}`).join('\n')}`);
+    }
+    if (summary.actionItems && summary.actionItems.length > 0) {
+      parts.push(`Action Items:\n${summary.actionItems.map(a => `✓ ${a}`).join('\n')}`);
+    }
+    if (summary.tags && summary.tags.length > 0) {
+      parts.push(`Tags: ${summary.tags.map(t => `#${t}`).join(' ')}`);
+    }
+    navigator.clipboard.writeText(parts.join('\n\n'));
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -104,29 +113,54 @@ export const AISummaryCard: React.FC<AISummaryCardProps> = ({
           )}
         </div>
       ) : summary && takeaways.length > 0 ? (
-        <div className="space-y-1.5">
-          <ul className="space-y-1 text-zinc-300 leading-snug">
+        <div className="space-y-2.5">
+          {/* Key Takeaways (Full text visible, zero clipping on mobile/desktop) */}
+          <ul className="space-y-2 text-zinc-200 text-xs sm:text-[13px] leading-relaxed">
             {takeaways.map((point, idx) => (
-              <li key={idx} className="flex items-start gap-1.5 line-clamp-1">
-                <span className="text-indigo-400 shrink-0">•</span>
-                <span className="truncate">{point}</span>
+              <li key={idx} className="flex items-start gap-2">
+                <span className="text-indigo-400 font-bold shrink-0 mt-0.5">•</span>
+                <span className="flex-1 break-words select-text text-zinc-200 leading-relaxed font-normal">
+                  {point}
+                </span>
               </li>
             ))}
           </ul>
 
-          {/* Compact Inline Tags */}
-          <div className="flex items-center gap-1.5 pt-1 text-[11px] overflow-hidden">
-            <span className="text-zinc-600 font-mono text-[10px]">TAGS:</span>
-            {summary.tags.slice(0, 4).map((tag, idx) => (
-              <button
-                key={idx}
-                onClick={() => onTagClick?.(tag)}
-                className="px-1.5 py-0.2 rounded bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 text-[10px] transition-colors truncate"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
+          {/* Action Items (if any extracted) */}
+          {summary.actionItems && summary.actionItems.length > 0 && (
+            <div className="pt-2 border-t border-zinc-800/60 mt-2 space-y-1.5">
+              <div className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-wider flex items-center gap-1">
+                <span>Action Items</span>
+              </div>
+              <ul className="space-y-1.5 text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
+                {summary.actionItems.map((action, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-amber-400 font-bold shrink-0 mt-0.5">✓</span>
+                    <span className="flex-1 break-words select-text text-zinc-300 leading-relaxed">
+                      {action}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Interactive Tags */}
+          {summary.tags && summary.tags.length > 0 && (
+            <div className="flex items-center gap-1.5 pt-2 border-t border-zinc-800/40 flex-wrap text-[11px]">
+              <span className="text-zinc-500 font-mono text-[10px] shrink-0">TAGS:</span>
+              {summary.tags.map((tag, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => onTagClick?.(tag)}
+                  className="px-2 py-0.5 rounded-md bg-zinc-800/90 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-300 hover:text-white text-[10px] font-medium transition-colors"
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       ) : !hasApiKey ? (
         <div className="py-1 text-zinc-400 text-xs flex items-center justify-between">

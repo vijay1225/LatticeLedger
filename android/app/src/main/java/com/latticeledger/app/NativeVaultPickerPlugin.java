@@ -136,6 +136,19 @@ public class NativeVaultPickerPlugin extends Plugin {
         call.resolve(ret);
     }
 
+    private File resolveFile(String folderPath, String subPath) {
+        File dir;
+        if (folderPath.startsWith("/")) {
+            dir = new File(folderPath);
+        } else {
+            dir = new File(Environment.getExternalStorageDirectory(), folderPath);
+        }
+        if (subPath != null && !subPath.isEmpty()) {
+            return new File(dir, subPath);
+        }
+        return dir;
+    }
+
     @PluginMethod
     public void checkVaultFile(PluginCall call) {
         String folderPath = call.getString("folderPath");
@@ -145,7 +158,7 @@ public class NativeVaultPickerPlugin extends Plugin {
             return;
         }
 
-        File file = new File(folderPath, fileName);
+        File file = resolveFile(folderPath, fileName);
         JSObject ret = new JSObject();
         ret.put("exists", file.exists() && file.isFile());
         ret.put("mtime", file.lastModified());
@@ -162,7 +175,7 @@ public class NativeVaultPickerPlugin extends Plugin {
             return;
         }
 
-        File file = new File(folderPath, fileName);
+        File file = resolveFile(folderPath, fileName);
         if (!file.exists() || !file.isFile()) {
             JSObject ret = new JSObject();
             ret.put("data", null);
@@ -199,7 +212,7 @@ public class NativeVaultPickerPlugin extends Plugin {
         }
 
         try {
-            File dir = new File(folderPath);
+            File dir = resolveFile(folderPath, null);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
@@ -235,7 +248,7 @@ public class NativeVaultPickerPlugin extends Plugin {
             call.reject("folderPath is required");
             return;
         }
-        File assetsDir = new File(folderPath, "assets");
+        File assetsDir = resolveFile(folderPath, "assets");
         boolean created = assetsDir.exists() || assetsDir.mkdirs();
         JSObject ret = new JSObject();
         ret.put("success", created);
@@ -252,7 +265,7 @@ public class NativeVaultPickerPlugin extends Plugin {
             return;
         }
         try {
-            File file = new File(folderPath, assetPath);
+            File file = resolveFile(folderPath, assetPath);
             File parent = file.getParentFile();
             if (parent != null && !parent.exists()) {
                 parent.mkdirs();
@@ -278,7 +291,7 @@ public class NativeVaultPickerPlugin extends Plugin {
             call.reject("folderPath and assetPath are required");
             return;
         }
-        File file = new File(folderPath, assetPath);
+        File file = resolveFile(folderPath, assetPath);
         if (!file.exists() || !file.isFile()) {
             JSObject ret = new JSObject();
             ret.put("data", null);

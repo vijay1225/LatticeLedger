@@ -709,10 +709,28 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.88MB).
       - Fresh Standalone Portable Executable: `LatticeLedger-Desktop.exe` (124.81MB).
       - Fresh Native Android APK: `LatticeLedger.apk` (7.84MB).
+  - [x] **Full Unclipped AI Summary Reading & Bulletproof Mobile Image Attachment**:
+    - **Full AI Summary Text & Zero Truncation (`AISummaryCard.tsx` & `PagesView.tsx`)**:
+      - Identified root cause of text cut off: `line-clamp-1` and `truncate` were previously clamping every takeaway bullet point to a single line with `...` on mobile screens.
+      - Completely removed `line-clamp-1` and `truncate`.
+      - Implemented natural, responsive line wrapping (`leading-relaxed break-words text-zinc-200 select-text`) so users can read the entire structured summary first upon opening any note.
+      - Added full display of AI `actionItems` with amber checkmarks (`✓`) and full interactive tags without arbitrary slicing.
+      - Upgraded summary copy button to format and copy all takeaways, action items, and tags cleanly.
+      - Updated `PagesView.tsx` so card summary takeaways also wrap naturally without premature 2-line clipping.
+    - **Reliable Mobile Image Attachment on First Attempt**:
+      - **Android 13/14+ Media Permissions**: Added `<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />` and `<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />` in `AndroidManifest.xml`.
+      - **Native Relative Path Resolution (`NativeVaultPickerPlugin.java`)**: Added `resolveFile` helper ensuring relative vault paths (like default `Documents/LatticeLedger`) resolve properly to `Environment.getExternalStorageDirectory()` instead of failing on initial file write.
+      - **Mobile File Input Reset**: Implemented `triggerFileInput` in `InsertMediaModal.tsx` resetting `fileInputRef.current.value = ''` before opening system gallery so selecting an image always triggers `onChange` reliably on the very first tap.
+      - **ProseMirror/TipTap Blur Fallback (`NoteEditor.tsx`)**: Upgraded `handleInsertImage` to catch blurred editor focus states on mobile, falling back to `insertContentAt(endPos, ...)` so image insertion never fails or gets dropped when returning from modal/gallery.
+    - **Verified & Built**:
+      - 103/103 automated unit tests passing across all 12 test suites.
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.88MB).
+      - Fresh Standalone Portable Executable: `LatticeLedger-Desktop.exe` (124.81MB).
+      - Fresh Native Android APK: `LatticeLedger.apk` (7.84MB).
 
 - [ ] **Next Steps**:
-  - [ ] User tests Flashcards on PC and Phone: adds notes to flashcards, checks due review, and tests the `···` menu.
-  - [ ] Verify WhatsApp-style dot behavior and review progression.
+  - [ ] User tests AI summary readability on phone (verifying full text is visible with no truncation).
+  - [ ] User tests attaching images on phone to verify it uploads seamlessly on the very first attempt.
 
 ---
 

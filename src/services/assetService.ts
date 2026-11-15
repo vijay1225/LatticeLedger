@@ -148,12 +148,20 @@ export async function saveAsset(
             data: base64Data
           });
         } catch {
-          await Filesystem.writeFile({
-            path: `${syncState.folderPath}/${assetPath}`,
-            data: base64Data,
-            directory: Directory.Documents,
-            recursive: true
-          });
+          if (syncState.folderPath.startsWith('/')) {
+            await Filesystem.writeFile({
+              path: `${syncState.folderPath}/${assetPath}`,
+              data: base64Data,
+              recursive: true
+            });
+          } else {
+            await Filesystem.writeFile({
+              path: `${syncState.folderPath}/${assetPath}`,
+              data: base64Data,
+              directory: Directory.Documents,
+              recursive: true
+            });
+          }
         }
       } catch (e) {
         console.warn('[AssetService] Capacitor asset write error:', e);

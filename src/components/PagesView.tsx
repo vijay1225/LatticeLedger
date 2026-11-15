@@ -323,8 +323,8 @@ export const PagesView: React.FC<PagesViewProps> = ({
                     )}
                   </div>
                   <ul className="list-disc list-inside space-y-1 text-zinc-300 text-[11px] leading-relaxed">
-                    {page.summary.tldr.slice(0, 3).map((item, idx) => (
-                      <li key={idx} className="line-clamp-2">
+                    {page.summary.tldr.slice(0, 4).map((item, idx) => (
+                      <li key={idx} className="leading-relaxed break-words">
                         {item}
                       </li>
                     ))}
