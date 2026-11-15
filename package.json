@@ -27,15 +27,16 @@
     ],
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        "nsis"
       ]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "artifactName": "LatticeLedger-Setup.${ext}",
+      "deleteAppDataOnUninstall": false
     }
   },
   "dependencies": {

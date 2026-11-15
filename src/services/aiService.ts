@@ -324,18 +324,15 @@ export async function generateNoteSummary(
   const provider = config?.provider || 'gemini';
   const charCount = (note.content || '').length;
 
-  // Proportional synthesis scaling: short notes get concise summaries; long notes get detailed, comprehensive breakdowns
-  let tldrInstruction = '2 to 3 concise bullet points summarizing key points.';
-  let maxTokens = 450;
-  let maxPoints = 4;
-  if (charCount > 2500) {
-    tldrInstruction = '5 to 8 detailed, comprehensive bullet points thoroughly capturing all core topics, technical points, arguments, decisions, and conclusions.';
-    maxTokens = 1000;
-    maxPoints = 8;
-  } else if (charCount > 800) {
-    tldrInstruction = '3 to 5 comprehensive bullet points capturing all essential concepts, takeaways, and context.';
-    maxTokens = 700;
-    maxPoints = 5;
+  // Synthesis scaling: simple, concise, and proportional to note length without artificial 3-line clipping
+  let tldrInstruction = 'Simple, concise, and highly relevant bullet points capturing every core idea, key insight, decision, and context without losing relevance. Keep each bullet point crisp and punchy (1 to 2 sentences).';
+  let maxTokens = 1000;
+  if (charCount > 3000) {
+    tldrInstruction = 'This is a long or multifaceted note. Provide a comprehensive series of concise bullet points (typically 6 to 12 points) thoroughly covering every main section, technical argument, decision, and takeaway without losing relevance. Keep each point simple, crisp, and punchy (1 to 2 sentences).';
+    maxTokens = 1800;
+  } else if (charCount > 1000) {
+    tldrInstruction = 'Provide clear, concise, and highly relevant bullet points (typically 4 to 7 points) covering all essential concepts and context without losing relevance. Keep each point punchy (1 to 2 sentences).';
+    maxTokens = 1400;
   }
 
   // 1. OpenAI Provider
@@ -351,14 +348,17 @@ export async function generateNoteSummary(
     const prompt = `You are a knowledgeable synthesis engine for LatticeLedger.
 Note Title: "${note.title}"
 Content:
-${note.content.slice(0, 20000)}
+${note.content.slice(0, 30000)}
+
+Summary Requirements:
+${tldrInstruction}
 
 Generate a structured JSON object:
 {
-  "tldr": ["${tldrInstruction}"],
-  "actionItems": ["action items, tasks, or follow-up questions, max 5"],
-  "tags": ["relevant tags starting with #, max 6"],
-  "keyEntities": ["key people, concepts, technologies, places, max 6"]
+  "tldr": ["array of simple, concise, and relevant summary bullet points"],
+  "actionItems": ["action items, tasks, or follow-up questions, max 6"],
+  "tags": ["relevant tags starting with #, max 8"],
+  "keyEntities": ["key people, concepts, technologies, places, max 8"]
 }
 Respond ONLY with valid JSON.`;
 
@@ -399,11 +399,15 @@ Respond ONLY with valid JSON.`;
         throw new Error('OpenAI did not return a valid structured summary JSON.');
       }
 
+      const cleanTldr = parsed.tldr
+        .map((p: any) => (typeof p === 'string' ? p.trim() : ''))
+        .filter((p: string) => p.length > 0);
+
       return {
-        tldr: parsed.tldr.slice(0, maxPoints),
-        actionItems: (parsed.actionItems || []).slice(0, 5),
-        tags: (parsed.tags || note.tags || []).slice(0, 6),
-        keyEntities: (parsed.keyEntities || []).slice(0, 6),
+        tldr: cleanTldr.slice(0, 14),
+        actionItems: (parsed.actionItems || []).slice(0, 6),
+        tags: (parsed.tags || note.tags || []).slice(0, 8),
+        keyEntities: (parsed.keyEntities || []).slice(0, 8),
         generatedAt: Date.now(),
         model: modelName
       };
@@ -427,14 +431,17 @@ Respond ONLY with valid JSON.`;
   const prompt = `You are a knowledgeable synthesis engine for LatticeLedger.
 Note Title: "${note.title}"
 Content:
-${note.content.slice(0, 20000)}
+${note.content.slice(0, 30000)}
+
+Summary Requirements:
+${tldrInstruction}
 
 Generate a structured JSON object:
 {
-  "tldr": ["${tldrInstruction}"],
-  "actionItems": ["action items, tasks, or follow-up questions, max 5"],
-  "tags": ["relevant tags starting with #, max 6"],
-  "keyEntities": ["key people, concepts, technologies, places, max 6"]
+  "tldr": ["array of simple, concise, and relevant summary bullet points"],
+  "actionItems": ["action items, tasks, or follow-up questions, max 6"],
+  "tags": ["relevant tags starting with #, max 8"],
+  "keyEntities": ["key people, concepts, technologies, places, max 8"]
 }
 Respond ONLY with valid JSON.`;
 
@@ -459,11 +466,15 @@ Respond ONLY with valid JSON.`;
       throw new Error('Gemini did not return a valid structured summary JSON.');
     }
 
+    const cleanTldr = parsed.tldr
+      .map((p: any) => (typeof p === 'string' ? p.trim() : ''))
+      .filter((p: string) => p.length > 0);
+
     return {
-      tldr: parsed.tldr.slice(0, maxPoints),
-      actionItems: (parsed.actionItems || []).slice(0, 5),
-      tags: (parsed.tags || note.tags).slice(0, 6),
-      keyEntities: (parsed.keyEntities || []).slice(0, 6),
+      tldr: cleanTldr.slice(0, 14),
+      actionItems: (parsed.actionItems || []).slice(0, 6),
+      tags: (parsed.tags || note.tags || []).slice(0, 8),
+      keyEntities: (parsed.keyEntities || []).slice(0, 8),
       generatedAt: Date.now(),
       model: usedModel
     };

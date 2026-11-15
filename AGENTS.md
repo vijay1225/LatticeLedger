@@ -725,12 +725,24 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
     - **Verified & Built**:
       - 103/103 automated unit tests passing across all 12 test suites.
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.88MB).
-      - Fresh Standalone Portable Executable: `LatticeLedger-Desktop.exe` (124.81MB).
       - Fresh Native Android APK: `LatticeLedger.apk` (7.84MB).
+  - [x] **Unrestricted Proportional AI Summaries & Single Installer Clean Packaging**:
+    - **Unrestricted Proportional AI Summary (`aiService.ts`)**:
+      - Eliminated artificial 2-3 line and 4-point truncation capping.
+      - Prompt updated so AI generates simple, crisp, punchy bullet points (1-2 sentences each) while scaling dynamically to cover all core sections, decisions, and technical context without losing relevance.
+      - Large notes now generate 6-12+ thorough points with increased token headroom (1400-1800 tokens), faithfully synthesizing long notes.
+    - **Single Windows Installer (`LatticeLedger-Setup.exe`) & Terminated Lingering Sessions**:
+      - Removed portable target from `package.json` (`win.target: ["nsis"]`), strictly creating `LatticeLedger-Setup.exe` (NSIS Installer) and `LatticeLedger.apk` (Android).
+      - Removed redundant `LatticeLedger-Desktop.exe` from the workspace root.
+      - Added `app.requestSingleInstanceLock()` and `before-quit` handler in `electron/main.cjs` to prevent duplicate background sessions from lingering and locking installer files.
+    - **Verified & Built**:
+      - 103/103 automated unit tests passing across all 12 test suites.
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.88MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
 - [ ] **Next Steps**:
-  - [ ] User tests AI summary readability on phone (verifying full text is visible with no truncation).
-  - [ ] User tests attaching images on phone to verify it uploads seamlessly on the very first attempt.
+  - [ ] User runs `LatticeLedger-Setup.exe` to update Windows app with zero file locks.
+  - [ ] User generates AI summaries for long notes to verify proportional, unclipped, highly relevant takeaways.
 
 ---
 
