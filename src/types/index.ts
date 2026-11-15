@@ -59,9 +59,21 @@ export interface GeminiModelInfo {
   isRecommended?: boolean;
 }
 
-export type ViewMode = 'journals' | 'pages' | 'notes' | 'quick' | 'search' | 'graph' | 'settings';
+export type ViewMode = 'journals' | 'pages' | 'notes' | 'quick' | 'flashcards' | 'search' | 'graph' | 'settings';
 export type SearchTab = 'instant' | 'ask-ai';
 export type AppTheme = 'dark' | 'slate' | 'sepia' | 'light';
+
+export type FlashcardStage = 1 | 2 | 3 | 4; // 1 = Next Day (+1d), 2 = +7d, 3 = +30d, 4 = Mastered
+
+export interface Flashcard {
+  id: string; // unique ID
+  noteId: string;
+  stage: FlashcardStage;
+  nextReviewDate: string; // ISO date string "YYYY-MM-DD"
+  lastReviewedAt?: number; // timestamp ms
+  createdAt: number;
+  status: 'active' | 'mastered';
+}
 
 export interface ContextualSuggestion {
   quickNote: Note;

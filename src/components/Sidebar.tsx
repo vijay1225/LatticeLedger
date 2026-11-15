@@ -30,6 +30,8 @@ interface SidebarProps {
   notesCount: number;
   quickNotesCount: number;
   journalsCount?: number;
+  flashcardsCount?: number;
+  dueFlashcardsCount?: number;
   onToggleCollapse?: () => void;
   syncConfigured?: boolean;
   syncFolderName?: string;
@@ -49,6 +51,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   notesCount,
   quickNotesCount,
   journalsCount = 0,
+  flashcardsCount = 0,
+  dueFlashcardsCount = 0,
   onToggleCollapse,
   syncConfigured = false,
   syncFolderName,
@@ -173,6 +177,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-400 font-mono border border-zinc-800">
             {quickNotesCount}
           </span>
+        </button>
+
+        {/* 3. Flashcards with WhatsApp-style dot */}
+        <button
+          onClick={() => onSelectMode('flashcards')}
+          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium transition-colors ${
+            currentMode === 'flashcards'
+              ? 'bg-zinc-850 text-zinc-100 font-semibold border border-zinc-700/60 shadow-sm'
+              : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border border-transparent'
+          }`}
+          title="Flashcards & Spaced Repetition"
+        >
+          <div className="flex items-center gap-2">
+            <Layers className={`w-4 h-4 ${
+              currentMode === 'flashcards' ? 'text-emerald-400' : 'text-zinc-500'
+            }`} />
+            <div className="flex items-center gap-1.5">
+              <span>Flashcards</span>
+              {dueFlashcardsCount > 0 && (
+                <span 
+                  className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50 animate-pulse" 
+                  title={`${dueFlashcardsCount} cards due today`} 
+                />
+              )}
+            </div>
+          </div>
+          {dueFlashcardsCount > 0 ? (
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-semibold border border-emerald-500/30">
+              {dueFlashcardsCount}
+            </span>
+          ) : (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-400 font-mono border border-zinc-800">
+              {flashcardsCount}
+            </span>
+          )}
         </button>
 
         {/* 3. Search */}

@@ -9,7 +9,10 @@ import {
   replaceAllNotesInSql,
   resetSqliteToSeed,
   createEmptySqliteVault,
-  optimizeSqliteDatabase
+  optimizeSqliteDatabase,
+  getAllFlashcardsFromSql,
+  saveFlashcardToSql,
+  deleteFlashcardFromSql
 } from '../services/sqliteService';
 import { Note } from '../types';
 
@@ -347,5 +350,40 @@ describe('SQLite Database Service', () => {
     const harry = allNotes.find(n => n.id === 'wiki-harry-potter');
     expect(harry).toBeDefined();
     expect(harry?.type).toBe('wiki');
+  });
+
+  it('saves, retrieves, and deletes flashcards in SQLite', async () => {
+    const card = {
+      id: 'fc_wiki-harry-potter',
+      noteId: 'wiki-harry-potter',
+      stage: 1 as const,
+      nextReviewDate: '2026-11-16',
+      createdAt: Date.now(),
+      status: 'active' as const
+    };
+
+    await saveFlashcardToSql(card);
+    let cards = await getAllFlashcardsFromSql();
+    expect(cards.some(c => c.noteId === 'wiki-harry-potter')).toBe(true);
+    const fetched = cards.find(c => c.noteId === 'wiki-harry-potter');
+    expect(fetched?.stage).toBe(1);
+    expect(fetched?.nextReviewDate).toBe('2026-11-16');
+
+    // Update stage to 2
+    await saveFlashcardToSql({
+      ...fetched!,
+      stage: 2,
+      nextReviewDate: '2026-11-23'
+    });
+
+    cards = await getAllFlashcardsFromSql();
+    const updated = cards.find(c => c.noteId === 'wiki-harry-potter');
+    expect(updated?.stage).toBe(2);
+    expect(updated?.nextReviewDate).toBe('2026-11-23');
+
+    // Delete flashcard
+    await deleteFlashcardFromSql('wiki-harry-potter');
+    cards = await getAllFlashcardsFromSql();
+    expect(cards.some(c => c.noteId === 'wiki-harry-potter')).toBe(false);
   });
 });

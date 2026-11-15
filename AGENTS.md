@@ -686,11 +686,33 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
     - Overhauled [`README.md`](file:///c:/Users/Vijay/Documents/LatticeLedger/README.md) with badges, interactive Mermaid architecture flowchart, detailed feature breakdowns (Triple-mode PKM, 2D D3 Knowledge Galaxy, TipTap WYSIWYG editor, Gemini BYOK AI, and Local-First SQLite + Google Drive sync).
     - Documented quickstart guide, build instructions for Windows Desktop and Android APK, Google Drive cross-device sync guide, and test suite overview.
     - Added standard MIT [`LICENSE`](file:///c:/Users/Vijay/Documents/LatticeLedger/LICENSE).
+  - [x] **Spaced Repetition Flashcards & Mobile Screen Decluttering**:
+    - **Spaced Repetition (SRS) Engine (`flashcardService.ts` & `sqliteService.ts`)**:
+      - Add any Wiki Page or Quick Note to Flashcards with 1 tap.
+      - 3-Stage Expanding Review Schedule:
+        - Stage 1: Added &rarr; Due Next Day (+1 Day).
+        - Stage 2: Marked as Reviewed &rarr; Due in 7 Days (+7 Days).
+        - Stage 3: Marked as Reviewed &rarr; Due in 1 Month (+30 Days).
+        - Stage 4: Mastered Archive (graduates out of daily queue; can be reset anytime).
+      - Explicit Review Action: user explicitly taps **"Mark as Reviewed ✅"** to advance the schedule.
+      - SQLite database persistence with dedicated indexed `flashcards` table; 100% backwards compatible.
+    - **WhatsApp-Style Status Dot & Minimal Mobile Ergonomics**:
+      - Sidebar (Desktop): Flashcards menu item displays pulsing green dot `🟢` when notes are due today.
+      - Mobile Header: Clean `🗂️` button with live pulsing green dot badge `🟢` when notes are due.
+      - Smart Floating Pill: Minimal banner on phone (`🟢 X notes to review today [Review →]`) appears strictly when notes are due, vanishing once caught up.
+      - Mobile Bottom Bar preserved at clean 5 buttons without crowding thumb space.
+    - **Consolidated `···` (More Options) Dropdown**:
+      - Decluttered `NoteEditor.tsx` top row: replaced 7 wrapped buttons with a stationary Save status, Save button, and sleek `···` menu.
+      - Houses Flashcard toggle, Auto-save toggle, Full-Width canvas, Zen/Focus Mode, Create New Page, and Delete Page.
+    - **Verified & Built**:
+      - 99/99 automated unit tests passing across all 11 test suites.
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.88MB).
+      - Fresh Standalone Portable Executable: `LatticeLedger-Desktop.exe` (124.81MB).
+      - Fresh Native Android APK: `LatticeLedger.apk` (7.84MB).
 
 - [ ] **Next Steps**:
-  - [ ] User runs `LatticeLedger-Setup.exe` to update their existing Windows installation.
-  - [ ] Verify Journals continuous stream, TODO toggles, and [[wiki-link]] navigation.
-  - [ ] Verify Quick Notes editing and "Show Journals" toggle in Knowledge Graph.
+  - [ ] User tests Flashcards on PC and Phone: adds notes to flashcards, checks due review, and tests the `···` menu.
+  - [ ] Verify WhatsApp-style dot behavior and review progression.
 
 ---
 

@@ -28,7 +28,9 @@ import {
   Film,
   Terminal,
   Minus,
-  Info
+  Info,
+  MoreVertical,
+  Layers
 } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -37,13 +39,14 @@ import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Markdown } from 'tiptap-markdown';
 
-import { Note } from '../types';
+import { Note, FlashcardStage } from '../types';
 import { AISummaryCard } from './AISummaryCard';
 import { findBacklinks, findRelatedQuickNotes, extractWikiLinks, stripDuplicateTitleHeading, isMarkdownText } from '../utils/wikiLinks';
 import { CustomCodeBlockNode, CustomImageNode, CustomVideoNode } from './editor/editorExtensions';
 import { InsertMediaModal } from './editor/InsertMediaModal';
 import { WikiLinkSuggestionPopup } from './editor/WikiLinkSuggestionPopup';
 import { saveAsset, getYoutubeEmbedUrl, isVideoEmbedUrl, isYoutubeShort } from '../services/assetService';
+import { getStageDescription } from '../services/flashcardService';
 
 interface NoteEditorProps {
   note: Note;
@@ -62,6 +65,9 @@ interface NoteEditorProps {
   summaryError?: string | null;
   onBackToPages?: () => void;
   onDeletePage?: (id: string) => void;
+  isFlashcard?: boolean;
+  flashcardStage?: FlashcardStage;
+  onToggleFlashcard?: () => void;
 }
 
 /**
@@ -90,10 +96,15 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   onOpenSettings,
   summaryError,
   onBackToPages,
-  onDeletePage
+  onDeletePage,
+  isFlashcard,
+  flashcardStage,
+  onToggleFlashcard
 }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
   const [mediaModal, setMediaModal] = useState<{ isOpen: boolean; type: 'image' | 'video' }>({
     isOpen: false,
     type: 'image'
@@ -650,6 +661,19 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [editor]);
 
+  // Click-outside listener for More Options dropdown
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setIsMoreMenuOpen(false);
+      }
+    };
+    if (isMoreMenuOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isMoreMenuOpen]);
+
   // Sync editor content when switching between notes (with duplicate top heading stripped)
   useEffect(() => {
     if (editor && note) {
@@ -863,14 +887,28 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           </div>
         </div>
 
-        {/* Header Controls: Live Save Status, Auto-save Toggle, Save Button, Delete, Full Width & Focus Mode */}
-        <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-start md:justify-end">
+        {/* Header Controls: Live Save Status, Save Button, and Compact ··· (More Options) */}
+        <div className="flex items-center gap-1.5 shrink-0 justify-start md:justify-end">
+          {/* Flashcard Active Indicator Badge (if already in flashcards) */}
+          {isFlashcard && (
+            <button
+              type="button"
+              onClick={onToggleFlashcard}
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:bg-emerald-950/60 transition-colors h-[26px]"
+              title={`In Flashcards: ${flashcardStage ? getStageDescription(flashcardStage).badge : 'Active'} (click to remove or change)`}
+            >
+              <Layers className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">{flashcardStage ? getStageDescription(flashcardStage).name : 'Flashcard'}</span>
+            </button>
+          )}
+
           {/* Stationary Save Status Indicator: Fixed in toolbar, eliminates note bouncing */}
           <div className="flex items-center px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-[11px] font-medium shrink-0 h-[26px]">
             {saveStatus === 'saving' ? (
               <span className="text-amber-400 flex items-center gap-1 animate-pulse">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                <span>Auto-saving...</span>
+                <span className="hidden sm:inline">Auto-saving...</span>
+                <span className="sm:hidden">Saving</span>
               </span>
             ) : saveStatus === 'unsaved' ? (
               <span className="text-amber-400 flex items-center gap-1">
@@ -885,26 +923,11 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             )}
           </div>
 
-          {/* Auto-Save Toggle */}
-          <button
-            type="button"
-            onClick={toggleAutoSave}
-            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-colors h-[26px] ${
-              isAutoSaveEnabled
-                ? 'bg-zinc-900 border-emerald-500/30 text-emerald-300'
-                : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300'
-            }`}
-            title={isAutoSaveEnabled ? "Auto-Save is active (changes automatically save to SQLite)" : "Auto-Save is off (click to enable)"}
-          >
-            {isAutoSaveEnabled ? <ToggleRight className="w-3.5 h-3.5 text-emerald-400" /> : <ToggleLeft className="w-3.5 h-3.5 text-zinc-500" />}
-            <span className="hidden sm:inline">Auto-save: {isAutoSaveEnabled ? 'ON' : 'OFF'}</span>
-          </button>
-
           {/* Manual Save Button */}
           <button
             type="button"
             onClick={handleManualSave}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition-all shadow-sm h-[26px] ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium border transition-all shadow-sm h-[26px] ${
               justSaved
                 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                 : 'bg-zinc-850 hover:bg-zinc-800 text-zinc-200 hover:text-white border-zinc-700/80 active:scale-95'
@@ -924,57 +947,139 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             )}
           </button>
 
-          {/* Delete Page Button */}
-          {onDeletePage && (
+          {/* More Options Dropdown (···) */}
+          <div className="relative" ref={moreMenuRef}>
             <button
               type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-rose-200 transition-colors shadow-sm"
-              title="Delete this page"
-            >
-              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-              <span className="hidden sm:inline">Delete</span>
-            </button>
-          )}
-
-          {onNewPage && (
-            <button
-              onClick={onNewPage}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-indigo-200 transition-colors shadow-sm"
-              title="Create a new Wiki Page"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">New Page</span>
-            </button>
-          )}
-
-          <button
-            onClick={toggleFullWidth}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors ${
-              isFullWidth
-                ? 'bg-zinc-800 text-indigo-300 border-zinc-700 shadow-sm'
-                : 'bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:bg-zinc-800'
-            }`}
-            title={isFullWidth ? "Switch to standard readable width" : "Expand to full-width wide canvas"}
-          >
-            {isFullWidth ? <FoldHorizontal className="w-3.5 h-3.5 text-indigo-400" /> : <Expand className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{isFullWidth ? 'Full Width' : 'Standard Width'}</span>
-          </button>
-
-          {onToggleFocusMode && (
-            <button
-              onClick={onToggleFocusMode}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors ${
-                isFocusMode
-                  ? 'bg-indigo-600/30 text-indigo-300 border-indigo-500/50 shadow-sm font-semibold'
-                  : 'bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:bg-zinc-800'
+              onClick={() => setIsMoreMenuOpen(prev => !prev)}
+              className={`p-1.5 rounded-md border text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 transition-colors h-[26px] flex items-center justify-center ${
+                isMoreMenuOpen ? 'bg-zinc-800 text-zinc-100 border-zinc-700' : 'bg-zinc-900 border-zinc-800'
               }`}
-              title="Focus / Zen Mode (Hides all sidebars for distraction-free writing)"
+              title="More options (Flashcards, Auto-save, Full width, Focus, Delete)"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline">{isFocusMode ? 'Exit Focus' : 'Focus Mode'}</span>
+              <MoreVertical className="w-3.5 h-3.5" />
             </button>
-          )}
+
+            {isMoreMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-56 rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl py-1.5 z-50 text-xs text-zinc-200 space-y-0.5 animate-in fade-in zoom-in-95 duration-100">
+                {/* 1. Flashcard Action */}
+                {onToggleFlashcard && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onToggleFlashcard();
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left flex items-center justify-between hover:bg-zinc-800 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Layers className={`w-3.5 h-3.5 ${isFlashcard ? 'text-emerald-400' : 'text-zinc-400'}`} />
+                      <span>{isFlashcard ? 'Remove from Flashcards' : 'Add to Flashcards'}</span>
+                    </div>
+                    {isFlashcard && (
+                      <span className="text-[10px] text-emerald-400 font-semibold px-1.5 py-0.5 rounded bg-emerald-500/10">
+                        {flashcardStage ? getStageDescription(flashcardStage).name : 'Active'}
+                      </span>
+                    )}
+                  </button>
+                )}
+
+                {/* 2. Auto-Save Toggle */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleAutoSave();
+                  }}
+                  className="w-full px-3 py-2 text-left flex items-center justify-between hover:bg-zinc-800 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    {isAutoSaveEnabled ? (
+                      <ToggleRight className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <ToggleLeft className="w-3.5 h-3.5 text-zinc-500" />
+                    )}
+                    <span>Auto-Save</span>
+                  </div>
+                  <span className={`text-[10px] font-semibold ${isAutoSaveEnabled ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                    {isAutoSaveEnabled ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+
+                {/* 3. Full Width / Standard Canvas Width */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleFullWidth();
+                    setIsMoreMenuOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left flex items-center justify-between hover:bg-zinc-800 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    {isFullWidth ? (
+                      <FoldHorizontal className="w-3.5 h-3.5 text-indigo-400" />
+                    ) : (
+                      <Expand className="w-3.5 h-3.5 text-zinc-400" />
+                    )}
+                    <span>Canvas Width</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-400">
+                    {isFullWidth ? 'Full' : 'Standard'}
+                  </span>
+                </button>
+
+                {/* 4. Focus / Zen Mode */}
+                {onToggleFocusMode && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onToggleFocusMode();
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left flex items-center justify-between hover:bg-zinc-800 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Maximize2 className={`w-3.5 h-3.5 ${isFocusMode ? 'text-indigo-400' : 'text-zinc-400'}`} />
+                      <span>Zen / Focus Mode</span>
+                    </div>
+                    {isFocusMode && <span className="text-[10px] text-indigo-400 font-semibold">ON</span>}
+                  </button>
+                )}
+
+                {/* 5. New Page */}
+                {onNewPage && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onNewPage();
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-zinc-800 text-indigo-300 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Create New Page</span>
+                  </button>
+                )}
+
+                {/* Divider */}
+                {onDeletePage && <div className="h-px bg-zinc-800 my-1" />}
+
+                {/* 6. Delete Page */}
+                {onDeletePage && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteConfirm(true);
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left flex items-center gap-2 text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Delete Page</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

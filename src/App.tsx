@@ -4,7 +4,8 @@ import {
   ViewMode, 
   AIProviderConfig,
   AppTheme,
-  KnowledgeGraphData
+  KnowledgeGraphData,
+  Flashcard
 } from './types';
 import { HARRY_POTTER_SEED_NOTES } from './services/harryPotterSeed';
 import { buildKnowledgeGraph } from './utils/graphBuilder';
@@ -15,8 +16,12 @@ import {
   saveNoteToSql, 
   deleteNoteFromSql, 
   resetSqliteToSeed,
-  loadDemoShowcaseNotes 
+  loadDemoShowcaseNotes,
+  getAllFlashcardsFromSql,
+  saveFlashcardToSql,
+  deleteFlashcardFromSql
 } from './services/sqliteService';
+import { createNewFlashcard, isFlashcardDue, getTodayDateStr } from './services/flashcardService';
 import { 
   initVaultSync, 
   subscribeVaultSyncState, 
@@ -34,6 +39,7 @@ import { SearchView } from './components/SearchView';
 import { SettingsModal } from './components/SettingsModal';
 import { RightPane } from './components/RightPane';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { FlashcardsView } from './components/FlashcardsView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Modular Knowledge Graph pre-loader for background prefetching
@@ -56,7 +62,8 @@ import {
   Moon,
   Sun,
   BookOpen,
-  Compass
+  Compass,
+  Layers
 } from 'lucide-react';
 
 const STORAGE_KEY = 'LATTICE_LEDGER_NOTES_V1';
@@ -171,6 +178,51 @@ export function App() {
   const [isFocusMode, setIsFocusMode] = useState(false);
 
   const hasGeminiKey = isGeminiKeyConfigured(aiConfig);
+
+  // Flashcards & Spaced Repetition State
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+
+  // Load flashcards from SQLite on mount
+  useEffect(() => {
+    getAllFlashcardsFromSql().then(loadedCards => {
+      if (Array.isArray(loadedCards)) {
+        setFlashcards(loadedCards);
+      }
+    }).catch(err => {
+      console.warn('[SQLite] Error loading flashcards on mount:', err);
+    });
+  }, []);
+
+  const handleUpdateFlashcard = (updatedCard: Flashcard) => {
+    setFlashcards(prev => prev.map(c => c.id === updatedCard.id ? updatedCard : c));
+    saveFlashcardToSql(updatedCard).catch(err => console.warn('[Flashcard] Save error:', err));
+  };
+
+  const handleToggleFlashcard = (noteId: string) => {
+    const existing = flashcards.find(c => c.noteId === noteId);
+    if (existing) {
+      deleteFlashcardFromSql(noteId).catch(err => console.warn('[Flashcard] Delete error:', err));
+      setFlashcards(prev => prev.filter(c => c.noteId !== noteId));
+    } else {
+      const newCard = createNewFlashcard(noteId);
+      saveFlashcardToSql(newCard).catch(err => console.warn('[Flashcard] Save error:', err));
+      setFlashcards(prev => [...prev, newCard]);
+    }
+  };
+
+  const handleRemoveFlashcard = (noteId: string) => {
+    deleteFlashcardFromSql(noteId).catch(err => console.warn('[Flashcard] Delete error:', err));
+    setFlashcards(prev => prev.filter(c => c.noteId !== noteId));
+  };
+
+  const todayStr = useMemo(() => getTodayDateStr(), []);
+  const dueFlashcardsCount = useMemo(() => {
+    return flashcards.filter(c => isFlashcardDue(c, todayStr)).length;
+  }, [flashcards, todayStr]);
+
+  const flashcardNoteIds = useMemo(() => {
+    return new Set(flashcards.map(c => c.noteId));
+  }, [flashcards]);
 
   // Note History Navigation (< and > like Obsidian / Logseq)
   const [history, setHistory] = useState<string[]>(['wiki-code-showcase']);
@@ -741,6 +793,8 @@ export function App() {
                 notesCount={wikiNotes.length}
                 quickNotesCount={quickNotes.length}
                 journalsCount={journalNotes.length}
+                flashcardsCount={flashcards.length}
+                dueFlashcardsCount={dueFlashcardsCount}
                 onToggleCollapse={() => setIsSidebarCollapsed(true)}
                 syncConfigured={vaultSyncState?.isConfigured}
                 syncFolderName={vaultSyncState?.folderName}
@@ -817,6 +871,23 @@ export function App() {
           )}
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Flashcards 1-Tap Trigger with WhatsApp-style dot */}
+            <button
+              type="button"
+              onClick={() => setCurrentMode(currentMode === 'flashcards' ? 'pages' : 'flashcards')}
+              className={`p-1.5 rounded relative transition-colors ${
+                currentMode === 'flashcards'
+                  ? 'text-emerald-400 bg-zinc-900 border border-zinc-800'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+              title={dueFlashcardsCount > 0 ? `${dueFlashcardsCount} flashcards due for review today!` : 'Flashcards & Spaced Repetition'}
+            >
+              <Layers className="w-4 h-4" />
+              {dueFlashcardsCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-zinc-950 animate-pulse" />
+              )}
+            </button>
+
             {/* Mobile 1-Tap Theme Switcher */}
             <button
               type="button"
@@ -855,6 +926,24 @@ export function App() {
             </button>
           </div>
         </header>
+
+        {/* Mobile Due Flashcards Notification Pill (WhatsApp-style status) */}
+        {dueFlashcardsCount > 0 && currentMode !== 'flashcards' && (
+          <div className="md:hidden px-3 pt-2 shrink-0">
+            <button
+              onClick={() => setCurrentMode('flashcards')}
+              className="w-full px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center justify-between shadow-sm active:scale-[0.99] transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{dueFlashcardsCount} note{dueFlashcardsCount > 1 ? 's' : ''} to review today</span>
+              </div>
+              <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-0.5">
+                Review &rarr;
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* Content by Current View Mode */}
         <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
@@ -913,6 +1002,9 @@ export function App() {
                     onOpenSettings={() => setCurrentMode('settings')}
                     summaryError={summaryError}
                     onBackToPages={() => setCurrentMode('pages')}
+                    isFlashcard={activeNote ? flashcardNoteIds.has(activeNote.id) : false}
+                    flashcardStage={activeNote ? flashcards.find(c => c.noteId === activeNote.id)?.stage : undefined}
+                    onToggleFlashcard={() => activeNote && handleToggleFlashcard(activeNote.id)}
                   />
                 </ErrorBoundary>
               ) : (
@@ -939,6 +1031,24 @@ export function App() {
               onDeleteQuickNote={handleDeleteQuickNote}
               onPromoteToWiki={handlePromoteQuickNote}
               onTagClick={() => setCurrentMode('search')}
+              flashcardNoteIds={flashcardNoteIds}
+              onToggleFlashcard={handleToggleFlashcard}
+            />
+          )}
+
+          {/* 4. FLASHCARDS VIEW: Spaced repetition review deck & mastered archive */}
+          {currentMode === 'flashcards' && (
+            <FlashcardsView
+              flashcards={flashcards}
+              notes={notes}
+              onUpdateFlashcard={handleUpdateFlashcard}
+              onRemoveFlashcard={handleRemoveFlashcard}
+              onOpenNote={(noteId) => {
+                setActiveNoteId(noteId);
+                setHistory(prev => [...prev, noteId]);
+                setHistoryIndex(prev => prev + 1);
+                setCurrentMode('notes');
+              }}
             />
           )}
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, Send, Tag, FileText, Trash2, Clock, Sparkles, Edit2, Check, X } from 'lucide-react';
+import { Zap, Send, Tag, FileText, Trash2, Clock, Sparkles, Edit2, Check, X, Layers } from 'lucide-react';
 import { Note } from '../types';
 
 interface QuickNotesFeedProps {
@@ -9,6 +9,8 @@ interface QuickNotesFeedProps {
   onDeleteQuickNote: (id: string) => void;
   onPromoteToWiki: (note: Note) => void;
   onTagClick?: (tag: string) => void;
+  flashcardNoteIds?: Set<string>;
+  onToggleFlashcard?: (noteId: string) => void;
 }
 
 export const QuickNotesFeed: React.FC<QuickNotesFeedProps> = ({
@@ -17,7 +19,9 @@ export const QuickNotesFeed: React.FC<QuickNotesFeedProps> = ({
   onUpdateQuickNote,
   onDeleteQuickNote,
   onPromoteToWiki,
-  onTagClick
+  onTagClick,
+  flashcardNoteIds,
+  onToggleFlashcard
 }) => {
   const [content, setContent] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -144,6 +148,20 @@ export const QuickNotesFeed: React.FC<QuickNotesFeedProps> = ({
                   <span>{new Date(note.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div className="flex items-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                  {onToggleFlashcard && (
+                    <button
+                      onClick={() => onToggleFlashcard(note.id)}
+                      className={`px-1.5 py-0.5 rounded text-[11px] flex items-center gap-1 transition-colors ${
+                        flashcardNoteIds?.has(note.id)
+                          ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/30'
+                          : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800'
+                      }`}
+                      title={flashcardNoteIds?.has(note.id) ? "In Flashcards (click to remove)" : "Add to Flashcards"}
+                    >
+                      <Layers className="w-3 h-3 text-emerald-400" />
+                      <span className="hidden sm:inline">{flashcardNoteIds?.has(note.id) ? 'In Flashcards' : 'Flashcard'}</span>
+                    </button>
+                  )}
                   {!isEditing && (
                     <button
                       onClick={() => startEditing(note)}

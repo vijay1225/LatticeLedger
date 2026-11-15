@@ -1,5 +1,5 @@
 import initSqlJs, { Database, SqlJsStatic } from 'sql.js';
-import { Note, NoteType } from '../types';
+import { Note, NoteType, Flashcard, FlashcardStage } from '../types';
 import { HARRY_POTTER_SEED_NOTES } from './harryPotterSeed';
 import { saveVaultDbToFolder, loadVaultDbFromFolder, getVaultSyncState } from './vaultSyncService';
 import { extractWikiLinks } from '../utils/wikiLinks';
@@ -212,6 +212,19 @@ function createSchemaIfMissing(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_notes_updated ON notes(updated_at DESC);
     CREATE INDEX IF NOT EXISTS idx_notes_title ON notes(title);
     CREATE INDEX IF NOT EXISTS idx_notes_type ON notes(type);
+
+    CREATE TABLE IF NOT EXISTS flashcards (
+      id TEXT PRIMARY KEY,
+      note_id TEXT NOT NULL UNIQUE,
+      stage INTEGER NOT NULL DEFAULT 1,
+      next_review_date TEXT NOT NULL,
+      last_reviewed_at INTEGER,
+      created_at INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active'
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_flashcards_note ON flashcards(note_id);
+    CREATE INDEX IF NOT EXISTS idx_flashcards_due ON flashcards(next_review_date, status);
   `);
 }
 
@@ -476,3 +489,59 @@ export async function importSqliteDatabaseFile(fileOrBuffer: ArrayBuffer | Uint8
   await saveBytesToIndexedDb(bytes);
   return getAllNotesFromSql();
 }
+
+/**
+ * Retrieve all flashcards from SQLite database.
+ */
+export async function getAllFlashcardsFromSql(): Promise<Flashcard[]> {
+  const db = await getSqliteDatabase();
+  try {
+    const res = db.exec("SELECT id, note_id, stage, next_review_date, last_reviewed_at, created_at, status FROM flashcards ORDER BY next_review_date ASC");
+    if (!res || res.length === 0 || !res[0].values) {
+      return [];
+    }
+    return res[0].values.map((row: any[]) => ({
+      id: row[0] as string,
+      noteId: row[1] as string,
+      stage: row[2] as FlashcardStage,
+      nextReviewDate: row[3] as string,
+      lastReviewedAt: row[4] ? (row[4] as number) : undefined,
+      createdAt: row[5] as number,
+      status: row[6] as 'active' | 'mastered'
+    }));
+  } catch (err) {
+    console.warn('[SQLite] Error reading flashcards:', err);
+    return [];
+  }
+}
+
+/**
+ * Persist or update a flashcard in SQLite database.
+ */
+export async function saveFlashcardToSql(card: Flashcard): Promise<void> {
+  const db = await getSqliteDatabase();
+  db.run(`
+    INSERT OR REPLACE INTO flashcards
+    (id, note_id, stage, next_review_date, last_reviewed_at, created_at, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [
+    card.id,
+    card.noteId,
+    card.stage,
+    card.nextReviewDate,
+    card.lastReviewedAt || null,
+    card.createdAt,
+    card.status
+  ]);
+  persistDatabase();
+}
+
+/**
+ * Delete a flashcard by noteId or cardId from SQLite database.
+ */
+export async function deleteFlashcardFromSql(noteId: string): Promise<void> {
+  const db = await getSqliteDatabase();
+  db.run("DELETE FROM flashcards WHERE note_id = ? OR id = ?", [noteId, noteId]);
+  persistDatabase();
+}
+
