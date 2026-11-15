@@ -26,6 +26,7 @@
       "package.json"
     ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         "nsis"
       ]
@@ -35,6 +36,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
       "artifactName": "LatticeLedger-Setup.${ext}",
       "deleteAppDataOnUninstall": false,
       "include": "build/installer.nsh"

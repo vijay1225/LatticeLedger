@@ -41,6 +41,7 @@ import { RightPane } from './components/RightPane';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { FlashcardsView } from './components/FlashcardsView';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LatticeLedgerLogo } from './components/LatticeLedgerLogo';
 
 // Modular Knowledge Graph pre-loader for background prefetching
 const loadKnowledgeGraphModule = () => 
@@ -856,9 +857,7 @@ export function App() {
           ) : (
             /* Primary Workspace Modes (Pages, Quick, Search, Graph, Settings) */
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600/10 border border-indigo-500/30 text-indigo-400">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
+              <LatticeLedgerLogo className="w-6 h-6 rounded-md shadow-sm shrink-0" />
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold text-xs tracking-tight text-zinc-100">LatticeLedger</span>
                 {currentMode !== 'pages' && (

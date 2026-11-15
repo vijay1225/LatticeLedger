@@ -16,6 +16,7 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#09090b',
     title: 'LatticeLedger',
+    icon: path.join(__dirname, '../build/icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,

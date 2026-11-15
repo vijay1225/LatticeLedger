@@ -19,6 +19,7 @@ import {
   Compass
 } from 'lucide-react';
 import { ViewMode, AppTheme } from '../types';
+import { LatticeLedgerLogo } from './LatticeLedgerLogo';
 
 interface SidebarProps {
   currentMode: ViewMode;
@@ -66,9 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Top Header & History Navigation */}
       <div className="h-12 px-3 border-b border-zinc-800/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200">
-            <Layers className="w-3 h-3 text-zinc-300" />
-          </div>
+          <LatticeLedgerLogo className="w-5 h-5 shrink-0 rounded shadow-sm" />
           <span className="font-semibold text-zinc-200 tracking-tight text-xs">
             LatticeLedger
           </span>

@@ -757,10 +757,31 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Verified install while `LatticeLedger.exe` was actively running: killed process cleanly, upgraded, and exited with ExitCode 0.
       - 103/103 automated tests passing.
       - Built fresh `LatticeLedger-Setup.exe` (144.88MB).
+  - [x] **Official Application Icon & Cross-Platform Branding (Concept 1: "Luminous Neural Lattice")**:
+    - **Visual Motif Selected**: Concept 1 featuring an obsidian matte squircle with glowing emerald and cyan geometric nodes connected by neural pathways subtly forming an open ledger fold.
+    - **Windows Desktop Application Icon**:
+      - Generated multi-resolution `build/icon.ico` containing 256, 128, 64, 48, 32, 24, and 16px mip levels with high-quality bicubic interpolation.
+      - Generated master `build/icon.png` (512x512).
+      - Configured `package.json` (`win.icon: "build/icon.ico"`, `nsis.installerIcon: "build/icon.ico"`, `nsis.uninstallerIcon: "build/icon.ico"`).
+      - Configured `electron/main.cjs` BrowserWindow (`icon: path.join(__dirname, '../build/icon.ico')`).
+    - **Android Mobile Launcher & Adaptive Icons**:
+      - Generated standard squircle launcher icons (`ic_launcher.png`) across all densities (`mdpi`: 48px, `hdpi`: 72px, `xhdpi`: 96px, `xxhdpi`: 144px, `xxxhdpi`: 192px).
+      - Generated circular launcher icons (`ic_launcher_round.png`) across all densities.
+      - Generated Android Adaptive Foreground icons (`ic_launcher_foreground.png`) with 16% safe-zone padding.
+      - Configured `ic_launcher_background.xml` to dark obsidian `#050811`.
+    - **Web / Favicon Assets**:
+      - Generated `public/favicon.ico`, `public/favicon.svg`, `public/icon.svg`, `public/icon-192.png`, and `public/icon-512.png`.
+      - Updated `index.html` with modern SVG and fallback favicon links.
+    - **In-App Branding**:
+      - Created `<LatticeLedgerLogo />` component (`src/components/LatticeLedgerLogo.tsx`) rendering the vector neural lattice mark.
+      - Updated Left Sidebar header (`Sidebar.tsx`) and Mobile Navigation header (`App.tsx`) to display the new official logo.
+    - **Verified & Built**:
+      - 103/103 automated tests passing.
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (146.06MB) with embedded icon.
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB) with new launcher icon.
 
 - [ ] **Next Steps**:
-  - [ ] User runs `LatticeLedger-Setup.exe` to update Windows app with zero prompts, dialogs, or deadlocks.
-  - [ ] Deliver strictly `LatticeLedger-Setup.exe` and `LatticeLedger.apk`.
+  - [ ] User runs `LatticeLedger-Setup.exe` on Windows or installs `LatticeLedger.apk` on Android to enjoy the newly branded application icon.
 
 ---
 

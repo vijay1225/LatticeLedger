@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LatticeLedger Icon Showcase</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-cyan: #38bdf8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #38bdf8, #10b981, #a7f3d0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin-bottom: 48px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.15);
+    }
+    .badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+    .img-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    p.desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+    }
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      background: #1e293b;
+      color: #94a3b8;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LatticeLedger Icon Showcase</h1>
+      <p class="subtitle">Review the 4 design concepts and choose your favorite</p>
+    </header>
+
+    <div class="grid">
+      <!-- Concept 1 -->
+      <div class="card">
+        <span class="badge">Concept 1</span>
+        <div class="img-wrap">
+          <img src="concept-1-neural-lattice.jpg" alt="Concept 1: Luminous Neural Lattice">
+        </div>
+        <h2>Luminous Neural Lattice</h2>
+        <p class="desc">A dark matte obsidian squircle featuring glowing emerald & cyan geometric nodes connected by neural energy lines forming an abstract open ledger.</p>
+        <div class="tags">
+          <span class="tag">Knowledge Graph</span>
+          <span class="tag">AI Neural Web</span>
+          <span class="tag">Fluent/macOS</span>
+        </div>
+      </div>
+
+      <!-- Concept 2 -->
+      <div class="card">
+        <span class="badge">Concept 2</span>
+        <div class="img-wrap">
+          <img src="concept-2-double-l-knot.jpg" alt="Concept 2: Interlocking Double-L Knot">
+        </div>
+        <h2>Double-L Knowledge Knot</h2>
+        <p class="desc">Two interlocking stylized geometric ribbons forming the double "L" monogram for Lattice + Ledger with an emerald & cyan diamond nexus.</p>
+        <div class="tags">
+          <span class="tag">Monogram Brand</span>
+          <span class="tag">Ultra-Scalable</span>
+          <span class="tag">Titanium Dark</span>
+        </div>
+      </div>
+
+      <!-- Concept 3 -->
+      <div class="card">
+        <span class="badge">Concept 3</span>
+        <div class="img-wrap">
+          <img src="concept-3-constellation-book.jpg" alt="Concept 3: Evergreen Constellation & Book">
+        </div>
+        <h2>Constellation & Ledger</h2>
+        <p class="desc">An isometric digital notebook with radiant pages from which a 3D crystalline force-directed constellation network emerges with an ambient golden AI spark.</p>
+        <div class="tags">
+          <span class="tag">Zettelkasten Galaxy</span>
+          <span class="tag">Evergreen Notes</span>
+          <span class="tag">Cosmic Slate</span>
+        </div>
+      </div>
+
+      <!-- Concept 4 -->
+      <div class="card">
+        <span class="badge">Concept 4</span>
+        <div class="img-wrap">
+          <img src="concept-4-prism-ledger.jpg" alt="Concept 4: Minimalist Geometric Prism Ledger">
+        </div>
+        <h2>Isometric Hex-Prism</h2>
+        <p class="desc">A precision 3D faceted prism cube where the three faces embody the Knowledge Graph, Structured Wiki Ledger, and AI Flashcards with laser-etched lattice coordinates.</p>
+        <div class="tags">
+          <span class="tag">Architectural 3D</span>
+          <span class="tag">3 Pillars</span>
+          <span class="tag">Electric Mint</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
