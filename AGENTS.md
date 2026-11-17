@@ -805,8 +805,27 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.06MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Targeted Quick Note Navigation from Search, Pages, and Knowledge Graph**:
+    - **Diagnosed Root Cause of "Goes to Home of Quick Notes"**:
+      - When navigating to a Quick Note from Search (`SearchView.tsx`), Wiki Pages Knowledge Connections (`NoteEditor.tsx`), or Knowledge Graph node cards (`KnowledgeGraphView.tsx`), `navigateToNote(id)` correctly switched mode to `'quick'` and set `activeNoteId`.
+      - However, `App.tsx` never forwarded `activeNoteId` to `<QuickNotesFeed>`.
+      - `QuickNotesFeed` lacked note ref tracking, scroll handlers, and highlight styling for the active note, so it always rendered from the top of the feed at scroll position 0.
+      - Furthermore, if the user had previously filtered by a tag, a targeted quick note lacking that tag would be hidden from view in `filteredNotes`.
+    - **Targeted Quick Note Navigation & Highlighting (`QuickNotesFeed.tsx` & `App.tsx`)**:
+      - **Target Note State in `App.tsx`**: Added `targetQuickNoteId` state. When `navigateToNote`, `handleGoBack`, or `handleGoForward` targets a quick note (`target.type === 'quick'`), it sets `targetQuickNoteId(target.id)` and passes it to `<QuickNotesFeed activeNoteId={targetQuickNoteId} onClearActiveNote={() => setTargetQuickNoteId(null)}>`.
+      - **Clean Tab Switch**: Manually clicking "Quick Notes" in the Left Sidebar or Mobile Bottom Nav clears `targetQuickNoteId` to show the standard un-filtered feed.
+      - **DOM Ref Tracking & Smooth Auto-Scroll**: Registered each quick note card with `ref={(el) => { noteRefs.current[note.id] = el; }}` and `id={`quick-note-${note.id}`}`. `useEffect` automatically scrolls the targeted card into the viewport center (`scrollIntoView({ behavior: 'smooth', block: 'center' })`).
+      - **Tag Filter Auto-Reset**: Automatically clears active tag filters (`setSelectedTag(null)`) when navigating to a specific quick note so the note is guaranteed visible in `filteredNotes`.
+      - **Vibrant Visual Highlight**: Targeted quick note renders with a vibrant amber focus ring (`ring-2 ring-amber-400/90 bg-amber-950/20 border-amber-500/70 shadow-xl shadow-amber-500/15`) and an animated `⚡ Target Note` badge.
+      - **Top Navigation Banner**: Added a top banner in the feed: `"Navigated to Quick Note: [content preview]"` with 1-click `[Scroll to Note]` and `[Show All]` actions.
+    - **Verified & Built Deliverables**:
+      - 106/106 automated unit tests passing across all 13 suites (`src/__tests__/quickNotesFeed.test.tsx` added).
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.10MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User tests the updated `LatticeLedger-Setup.exe` on Windows or `LatticeLedger.apk` on Android with the optimized v3 icons.
+  - [ ] User tests targeted Quick Note navigation from Search, Wiki Pages, and Knowledge Graph on Windows or Android.
 
 ---
 

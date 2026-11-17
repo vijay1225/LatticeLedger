@@ -153,6 +153,7 @@ export function App() {
   const [currentMode, setCurrentMode] = useState<ViewMode>('journals');
   const [previousMode, setPreviousMode] = useState<ViewMode>('journals');
   const [activeNoteId, setActiveNoteId] = useState<string>('wiki-code-showcase');
+  const [targetQuickNoteId, setTargetQuickNoteId] = useState<string | null>(null);
 
   // Maintain live references to prevent stale closure bugs in sync/file watcher callbacks
   const activeNoteIdRef = useRef(activeNoteId);
@@ -163,6 +164,9 @@ export function App() {
   notesRef.current = notes;
 
   const switchMode = (newMode: ViewMode) => {
+    if (newMode === 'quick') {
+      setTargetQuickNoteId(null);
+    }
     if (newMode !== currentMode) {
       setPreviousMode(currentMode);
       setCurrentMode(newMode);
@@ -424,7 +428,14 @@ export function App() {
 
     if (target) {
       setActiveNoteId(target.id);
-      setCurrentMode(target.type === 'wiki' ? 'notes' : target.type === 'journal' ? 'journals' : 'quick');
+      if (target.type === 'quick') {
+        setTargetQuickNoteId(target.id);
+        setCurrentMode('quick');
+      } else if (target.type === 'journal') {
+        setCurrentMode('journals');
+      } else {
+        setCurrentMode('notes');
+      }
 
       const newHistory = history.slice(0, historyIndex + 1);
       newHistory.push(target.id);
@@ -461,7 +472,16 @@ export function App() {
       const noteId = history[prevIndex];
       setActiveNoteId(noteId);
       const target = notes.find(n => n.id === noteId);
-      if (target) setCurrentMode(target.type === 'wiki' ? 'notes' : target.type === 'journal' ? 'journals' : 'quick');
+      if (target) {
+        if (target.type === 'quick') {
+          setTargetQuickNoteId(target.id);
+          setCurrentMode('quick');
+        } else if (target.type === 'journal') {
+          setCurrentMode('journals');
+        } else {
+          setCurrentMode('notes');
+        }
+      }
     }
   };
 
@@ -472,7 +492,16 @@ export function App() {
       const noteId = history[nextIndex];
       setActiveNoteId(noteId);
       const target = notes.find(n => n.id === noteId);
-      if (target) setCurrentMode(target.type === 'wiki' ? 'notes' : target.type === 'journal' ? 'journals' : 'quick');
+      if (target) {
+        if (target.type === 'quick') {
+          setTargetQuickNoteId(target.id);
+          setCurrentMode('quick');
+        } else if (target.type === 'journal') {
+          setCurrentMode('journals');
+        } else {
+          setCurrentMode('notes');
+        }
+      }
     }
   };
 
@@ -1025,6 +1054,8 @@ export function App() {
           {currentMode === 'quick' && (
             <QuickNotesFeed
               quickNotes={quickNotes}
+              activeNoteId={targetQuickNoteId}
+              onClearActiveNote={() => setTargetQuickNoteId(null)}
               onAddQuickNote={handleAddQuickNote}
               onUpdateQuickNote={handleUpdateQuickNote}
               onDeleteQuickNote={handleDeleteQuickNote}
