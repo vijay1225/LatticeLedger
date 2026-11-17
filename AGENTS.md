@@ -863,8 +863,31 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.10MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Journal Delete Button In-Line Header Placement & Android Icon Safe-Zone Fix**:
+    - **Journal Delete Button Positioned Right of Date**:
+      - In [JournalsView.tsx](file:///c:/Users/Vijay/Documents/LatticeLedger/src/components/JournalsView.tsx), moved the Delete day entry button (`Trash2`) directly into the inline date heading group (`<div className="flex items-center gap-2.5 flex-wrap">`).
+      - The delete button now sits immediately to the right of the formatted date and `Today`/`Yesterday` badge on all screens, rather than dropping down into an awkward separate row on mobile screens.
+      - Maintained save status indicators (`Saving...` / `Saved`) cleanly aligned to the right.
+    - **Android Adaptive Icon Safe-Zone Padding (Resolved Cropped Pencils on Phone)**:
+      - **Diagnosed Why Pencils Were Cropped on Android**:
+        - Modern Android launchers (Android 8.0 Oreo through Android 15 on Samsung, Google Pixel, OnePlus, Xiaomi) use **Adaptive Icons** (`ic_launcher.xml` with background and foreground layers).
+        - Android applies a circular, squircle, or rounded mask over the 108dp canvas with an inner mask diameter of **66dp to 72dp** (~66% of the canvas). The outer 33% (18dp on every edge) is strictly reserved as an animation bleed / parallax zone and is completely cropped out by the launcher mask!
+        - Because our previous taskbar optimization had expanded the icon edge-to-edge (0 margin), the outer 33% containing the hexagon and all 3 orbiting pencils fell outside the mask and was chopped off on phones, leaving only the central "L" visible.
+      - **Adaptive Icon Safe-Zone Scaling**:
+        - Scaled the foreground icon content to ~62% of the canvas centered within `ic_launcher_foreground.png` across all density buckets (`mdpi` 108x108, `hdpi` 162x162, `xhdpi` 216x216, `xxhdpi` 324x324, `xxxhdpi` 432x432).
+        - Every pixel of the entire hexagon, all 3 pencils, and the central "L" now sits comfortably inside the circular safe zone with breathing room.
+        - Updated `android/app/src/main/res/values/ic_launcher_background.xml` and `drawable/ic_launcher_background.xml` to pure black `#000000` to match the background seamlessly.
+        - Generated legacy square and round icons (`ic_launcher.png` and `ic_launcher_round.png` at 48x48, 72x72, 96x96, 144x144, 192x192) with centered content on pure black.
+        - Preserved crisp high-resolution edge-to-edge desktop taskbar icons (`build/icon.ico` and `build/icon.png`).
+        - Created [android_icon_preview.html](file:///C:/Users/Vijay/.gemini/antigravity/brain/824b44a9-25f6-4ab3-978c-1edfb0458d87/android_icon_preview.html) simulating Pixel circle mask, Samsung OneUI squircle mask, and Xiaomi rounded mask.
+    - **Verified & Built Deliverables**:
+      - 109/109 automated unit tests passing across all 14 suites.
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.10MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User tests right-click and mobile long-press Copy menu, single Journal date format, and updated desktop/mobile builds.
+  - [ ] User verifies Journal delete button position on phone/desktop and confirms complete uncropped icon display on phone home screen.
 
 ---
 

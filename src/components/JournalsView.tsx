@@ -523,7 +523,7 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
   return (
     <div className="w-full relative group/day">
       {/* Day Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+      <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2.5 flex-wrap">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
             <span>{displayTitle}</span>
@@ -539,32 +539,32 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
               Yesterday
             </span>
           )}
-        </div>
 
-        {/* Subtle Day Status & Actions */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {saveStatus === 'saving' && (
-            <span className="text-[11px] text-zinc-500 mr-1 animate-pulse">
-              Saving...
-            </span>
-          )}
-          {justSaved && (
-            <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium mr-1">
-              <Check className="w-3 h-3" />
-              <span>Saved</span>
-            </span>
-          )}
-
-          {/* Delete Day Note if exists in database */}
+          {/* Delete Day Note directly on right of date if note exists in database */}
           {hasExistingNote && onDelete && (
             <button
               type="button"
               onClick={onDelete}
-              className="p-1 rounded text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors ml-1 cursor-pointer"
+              className="p-1 rounded text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
               title="Delete this day's entry"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
+          )}
+        </div>
+
+        {/* Subtle Day Save Status */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {saveStatus === 'saving' && (
+            <span className="text-[11px] text-zinc-500 animate-pulse">
+              Saving...
+            </span>
+          )}
+          {justSaved && (
+            <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
+              <Check className="w-3 h-3" />
+              <span>Saved</span>
+            </span>
           )}
         </div>
       </div>
