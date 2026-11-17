@@ -277,19 +277,41 @@ export const AppContextMenu: React.FC = () => {
           const prosemirror = target?.closest?.('.tiptap.ProseMirror') as HTMLElement | null;
 
           // If pasting into TipTap WYSIWYG editor and text contains markdown formatting:
-          if (prosemirror && isMarkdownText(text)) {
-            try {
-              const html = convertMarkdownToHtml(text);
-              if (html) {
-                // Try execCommand('insertHTML') which triggers ProseMirror's HTML DOM parser
-                const inserted = document.execCommand('insertHTML', false, html);
-                if (inserted) {
+          if (prosemirror) {
+            prosemirror.focus();
+
+            if (isMarkdownText(text)) {
+              // 1. Dispatch synthetic paste event so ProseMirror handlePaste executes with DOMParser slice insertion
+              try {
+                const dt = new DataTransfer();
+                dt.setData('text/plain', text);
+                const pasteEvent = new ClipboardEvent('paste', {
+                  bubbles: true,
+                  cancelable: true,
+                  clipboardData: dt
+                });
+                prosemirror.dispatchEvent(pasteEvent);
+                if (pasteEvent.defaultPrevented) {
                   setMenu(prev => ({ ...prev, isOpen: false }));
                   return;
                 }
+              } catch (err) {
+                console.warn('[ContextMenu] synthetic paste event fallback:', err);
               }
-            } catch (err) {
-              console.warn('[ContextMenu] insertHTML markdown paste fallback:', err);
+
+              // 2. Direct execCommand insertHTML fallback
+              try {
+                const html = convertMarkdownToHtml(text);
+                if (html) {
+                  const inserted = document.execCommand('insertHTML', false, html);
+                  if (inserted) {
+                    setMenu(prev => ({ ...prev, isOpen: false }));
+                    return;
+                  }
+                }
+              } catch (err) {
+                console.warn('[ContextMenu] insertHTML markdown paste fallback:', err);
+              }
             }
           }
 

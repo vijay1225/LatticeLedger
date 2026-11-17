@@ -496,14 +496,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
           const parsedHtml = convertMarkdownToHtml(textToParse);
           if (parsedHtml) {
-            if (editorRef.current?.commands?.insertContent) {
-              editorRef.current.commands.insertContent(parsedHtml);
-              return true;
-            }
-            if ((view as any).editor?.commands?.insertContent) {
-              (view as any).editor.commands.insertContent(parsedHtml);
-              return true;
-            }
+            // Priority 1: Direct ProseMirror DOMParser slice insertion (synchronous & schema-validated)
             try {
               const tempEl = document.createElement('div');
               tempEl.innerHTML = parsedHtml;
@@ -515,6 +508,15 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
               return true;
             } catch (err) {
               console.warn('[NoteEditor] DOMParser slice paste fallback:', err);
+            }
+
+            if (editorRef.current?.commands?.insertContent) {
+              editorRef.current.commands.insertContent(parsedHtml);
+              return true;
+            }
+            if ((view as any).editor?.commands?.insertContent) {
+              (view as any).editor.commands.insertContent(parsedHtml);
+              return true;
             }
           }
         }

@@ -982,8 +982,27 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.26MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Desktop Keyboard Shortcuts (Ctrl+C, Ctrl+V, etc.) & Reliable Markdown Paste Conversion**:
+    - **Diagnosed Why Ctrl+C and Ctrl+V Failed While Right-Click Worked**:
+      - In Electron on Windows, `mainWindow.setMenuBarVisibility(false)` was invoked without defining an application menu. Windows Win32 `TranslateAcceleratorW` never registered OS keyboard accelerators for `CmdOrCtrl+C` and `CmdOrCtrl+V`.
+      - Right-click worked because the context menu directly accessed clipboard APIs or Electron menu item roles.
+    - **Electron Accelerator Table & Input Event Fail-Safe**:
+      - Registered standard Application Menu (`Menu.setApplicationMenu(appMenu)`) with native `undo`, `redo`, `cut`, `copy`, `paste`, `pasteAndMatchStyle`, and `selectAll` roles and accelerators.
+      - Enabled `autoHideMenuBar: true` on `BrowserWindow` so the app retains a modern, borderless, clean layout while accelerators remain permanently bound.
+      - Added `mainWindow.webContents.on('before-input-event')` fail-safe hook explicitly dispatching `copy()`, `paste()`, `cut()`, `selectAll()`, `undo()`, and `redo()` on Ctrl/Cmd keyboard inputs.
+    - **Direct DOMParser Slice Prioritization in NoteEditor & JournalsView**:
+      - Reordered `handlePaste` to prioritize synchronous, direct ProseMirror `DOMParser.fromSchema(view.state.schema).parseSlice(tempEl)` insertion over `editor.commands.insertContent`.
+      - Prevents `tiptap-markdown`'s overridden `insertContentAt` from intercepting converted HTML as `{ inline: true }` markdown.
+      - Headings, bold, task lists, and quotes render immediately into live WYSIWYG preview upon paste (`Ctrl+V` or Right-Click).
+    - **Context Menu Focus & Synthetic Paste Event Dispatch**:
+      - In `AppContextMenu.tsx`, clicking "Paste" now explicitly restores focus to `.tiptap.ProseMirror` and dispatches a synthetic `ClipboardEvent('paste')` before falling back to `insertHTML`.
+    - **Verified & Built Deliverables**:
+      - 115/115 automated unit tests passing across all 16 suites.
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.27MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User verifies new uncropped, floating, crisp app icon on Windows Desktop and Android phone.
+  - [ ] User verifies keyboard Ctrl+C / Ctrl+V and automatic markdown preview paste across notes and journals.
 
 ---
 

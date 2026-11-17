@@ -16,6 +16,7 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#09090b',
     title: 'LatticeLedger',
+    autoHideMenuBar: true,
     icon: path.join(__dirname, '../build/icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -26,8 +27,64 @@ function createWindow() {
     }
   });
 
-  // Remove default menu bar for clean modern appearance (Alt key can still toggle or custom controls)
+  // Register application menu with standard Edit accelerators (Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+Z, Ctrl+Y)
+  // In Windows Electron, having an application menu is required for OS keyboard accelerators to be registered.
+  const appMenuTemplate = [
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo', accelerator: 'CmdOrCtrl+Z' },
+        { role: 'redo', accelerator: 'CmdOrCtrl+Y' },
+        { type: 'separator' },
+        { role: 'cut', accelerator: 'CmdOrCtrl+X' },
+        { role: 'copy', accelerator: 'CmdOrCtrl+C' },
+        { role: 'paste', accelerator: 'CmdOrCtrl+V' },
+        { role: 'pasteAndMatchStyle', accelerator: 'CmdOrCtrl+Shift+V' },
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll', accelerator: 'CmdOrCtrl+A' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    }
+  ];
+  const appMenu = Menu.buildFromTemplate(appMenuTemplate);
+  Menu.setApplicationMenu(appMenu);
+
+  // Keep menu bar visually hidden for a clean modern app look while accelerators remain active
   mainWindow.setMenuBarVisibility(false);
+
+  // Guarantee Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+Z, Ctrl+Y dispatch via before-input-event fail-safe
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.type === 'keyDown' && (input.control || input.meta)) {
+      const k = input.key.toLowerCase();
+      if (k === 'v' && !input.shift && !input.alt) {
+        mainWindow.webContents.paste();
+      } else if (k === 'c' && !input.shift && !input.alt) {
+        mainWindow.webContents.copy();
+      } else if (k === 'x' && !input.shift && !input.alt) {
+        mainWindow.webContents.cut();
+      } else if (k === 'a' && !input.shift && !input.alt) {
+        mainWindow.webContents.selectAll();
+      } else if (k === 'z' && !input.shift && !input.alt) {
+        mainWindow.webContents.undo();
+      } else if ((k === 'y' && !input.alt) || (k === 'z' && input.shift && !input.alt)) {
+        mainWindow.webContents.redo();
+      }
+    }
+  });
 
   // Forward renderer console logs to main process for diagnostics
   mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {

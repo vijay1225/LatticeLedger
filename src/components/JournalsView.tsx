@@ -359,10 +359,6 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
           event.preventDefault();
           const parsedHtml = convertMarkdownToHtml(rawText);
           if (parsedHtml) {
-            if ((view as any).editor?.commands?.insertContent) {
-              (view as any).editor.commands.insertContent(parsedHtml);
-              return true;
-            }
             try {
               const tempEl = document.createElement('div');
               tempEl.innerHTML = parsedHtml;
@@ -374,6 +370,11 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
               return true;
             } catch (err) {
               console.warn('[JournalsView] Markdown paste error:', err);
+            }
+
+            if ((view as any).editor?.commands?.insertContent) {
+              (view as any).editor.commands.insertContent(parsedHtml);
+              return true;
             }
           }
         }
