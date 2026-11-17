@@ -904,8 +904,27 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.15MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Floating Transparent Desktop Icon & Chrome-Style Circular Mobile Launcher Icon**:
+    - **Eliminated Black Square Box & Outer Hexagon**:
+      - Diagnosed user feedback: The rigid black square box background felt outdated once installed on Windows and did not match modern floating app aesthetics (like Chrome, Slack, Discord, VS Code, Obsidian).
+      - Extracted ONLY the 3 orbiting pencils and the central stylized "L", completely removing the outer hexagon frame, vertices, and the rigid black box tile.
+    - **Desktop (Windows) Floating Transparent Silhouette**:
+      - Master 1024x1024 icon centered strictly on a **100% transparent background**.
+      - Added a delicate 2px/4px subtle dark ambient contrast contour (`rgba(0,0,0,0.45)`) around the white strokes, ensuring strokes remain razor-sharp and never wash out even against pure white wallpapers or Windows light taskbars.
+      - Generated multi-resolution `build/icon.ico` (256, 128, 64, 48, 32, 24, 20, 16) and `build/icon.png` (512x512) on transparent canvas.
+    - **Mobile (Android APK) Chrome-Style Circular Badge**:
+      - Following Google Chrome's Android design paradigm (clean circular badge), generated `ic_launcher_round.png` and legacy `ic_launcher.png` with a sleek dark circular badge (`#0a0e17`) and centered pencils + "L".
+      - Scaled adaptive foreground (`ic_launcher_foreground.png`) to ~62% safe zone on transparent background across all mipmap densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`), guaranteeing zero cropping under circular, squircle, or teardrop launcher masks.
+    - **Interactive Preview Artifact**:
+      - Generated [floating_icons_preview.html](file:///C:/Users/Vijay/.gemini/antigravity/brain/824b44a9-25f6-4ab3-978c-1edfb0458d87/floating_icons_preview.html) showcasing the icon floating on photo/light/dark desktop wallpapers, dark/light Windows taskbars, and Android circular dock.
+    - **Verified & Built Deliverables**:
+      - 109/109 automated unit tests passing across all 14 suites.
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe`.
+      - Fresh Standalone Android APK: `LatticeLedger.apk`.
+
 - [ ] **Next Steps**:
-  - [ ] User verifies updated desktop icon sharpness and Android launcher icon.
+  - [ ] User verifies floating transparent desktop icon and Chrome-style circular mobile icon.
 
 ---
 
