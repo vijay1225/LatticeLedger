@@ -845,8 +845,26 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe`.
       - Fresh Standalone Android APK: `LatticeLedger.apk`.
 
+  - [x] **Right-Click & Mobile Long-Press Copy Menu & Journal Single Date Header**:
+    - **Single Clean Journal Date Format**:
+      - Removed the duplicate `2026-11-12` date badge displayed next to formatted date headings (e.g., `Thursday, November 12, 2026`).
+      - In [JournalsView.tsx](file:///c:/Users/Vijay/Documents/LatticeLedger/src/components/JournalsView.tsx), headings now strictly display one clean, human-readable date format (with `Today` or `Yesterday` badge if applicable), completely eliminating the dual-format clutter.
+    - **Universal Right-Click & Mobile Long-Press Copy Option (`AppContextMenu.tsx`)**:
+      - **Mobile Touch Long-Press Detection**: Integrated 420ms touch-hold listener with touch movement tolerance (`<8px`) and haptic pulse (`navigator.vibrate?.(35)`), popping up an in-app Context Menu directly under the user's finger on Android APK and mobile browsers.
+      - **Desktop Right-Click Context Menu**: Added standard right-click `contextmenu` listener in React as well as native OS context menu in `electron/main.cjs` (`mainWindow.webContents.on('context-menu')`).
+      - **Context-Aware Actions**:
+        - **Copy Selection / Copy Text**: Automatically detects active text selection or extracts note / card / code block text under the cursor/touch point and writes to clipboard (`navigator.clipboard.writeText`), accompanied by an animated "Copied!" feedback indicator.
+        - **Cut & Paste**: Automatically offers Cut and Paste (`navigator.clipboard.readText`) when right-clicking or long-pressing inside editable text fields.
+        - **Select All**: Convenient 1-tap select-all action.
+        - **Safe Bounds Clamping**: Clamps menu position within viewport edges and ignores the interactive Knowledge Graph canvas.
+    - **Verified & Built Deliverables**:
+      - 109/109 automated unit tests passing across all 14 suites (`src/__tests__/appContextMenu.test.tsx` added).
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.10MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User tests uncluttered Journals stream and compact YouTube video embeds on Windows or Android.
+  - [ ] User tests right-click and mobile long-press Copy menu, single Journal date format, and updated desktop/mobile builds.
 
 ---
 

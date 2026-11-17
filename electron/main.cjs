@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, session } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, session, Menu, MenuItem } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -35,6 +35,61 @@ function createWindow() {
       console.error(`[Renderer Error] ${message} (${sourceId}:${line})`);
     } else {
       console.log(`[Renderer] ${message}`);
+    }
+  });
+
+  // Enable desktop native right-click context menu (Copy, Cut, Paste, Select All)
+  mainWindow.webContents.on('context-menu', (_event, params) => {
+    const menu = new Menu();
+
+    if (params.selectionText && params.selectionText.trim()) {
+      menu.append(new MenuItem({
+        label: 'Copy',
+        accelerator: 'CmdOrCtrl+C',
+        role: 'copy'
+      }));
+    }
+
+    if (params.isEditable) {
+      if (params.selectionText && params.selectionText.trim()) {
+        menu.append(new MenuItem({
+          label: 'Cut',
+          accelerator: 'CmdOrCtrl+X',
+          role: 'cut'
+        }));
+      }
+      menu.append(new MenuItem({
+        label: 'Paste',
+        accelerator: 'CmdOrCtrl+V',
+        role: 'paste'
+      }));
+      menu.append(new MenuItem({ type: 'separator' }));
+      menu.append(new MenuItem({
+        label: 'Select All',
+        accelerator: 'CmdOrCtrl+A',
+        role: 'selectAll'
+      }));
+    } else if (params.selectionText && params.selectionText.trim()) {
+      menu.append(new MenuItem({ type: 'separator' }));
+      menu.append(new MenuItem({
+        label: 'Select All',
+        accelerator: 'CmdOrCtrl+A',
+        role: 'selectAll'
+      }));
+    }
+
+    if (params.linkURL) {
+      menu.append(new MenuItem({
+        label: 'Copy Link Address',
+        click: () => {
+          const { clipboard } = require('electron');
+          clipboard.writeText(params.linkURL);
+        }
+      }));
+    }
+
+    if (menu.items.length > 0) {
+      menu.popup({ window: mainWindow, x: params.x, y: params.y });
     }
   });
 

@@ -42,6 +42,7 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { FlashcardsView } from './components/FlashcardsView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LatticeLedgerLogo } from './components/LatticeLedgerLogo';
+import { AppContextMenu } from './components/AppContextMenu';
 
 // Modular Knowledge Graph pre-loader for background prefetching
 const loadKnowledgeGraphModule = () => 
@@ -1261,6 +1262,9 @@ export function App() {
           </div>
         </div>
       )}
+
+      {/* Global Right-Click & Mobile Long-Press Context Menu */}
+      <AppContextMenu />
     </div>
   );
 }

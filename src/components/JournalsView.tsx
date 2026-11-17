@@ -539,11 +539,6 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
               Yesterday
             </span>
           )}
-          {!isToday && !isYesterday && (
-            <span className="text-[11px] font-mono text-zinc-500">
-              {dateKey}
-            </span>
-          )}
         </div>
 
         {/* Subtle Day Status & Actions */}
