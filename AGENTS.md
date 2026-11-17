@@ -789,8 +789,24 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.98MB).
       - Fresh Native Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Optimized `final_app_icons_no_star_v3` Everywhere**:
+    - **Asset Ingestion & Resampling**:
+      - Ingested clean, transparent, star-free v3 icons directly from `Downloads/final_app_icons_no_star_v3` (1024x1024, 512x512, 256x256, 192x192, 144x144, 128x128, 64x64, 48x48, 32x32, 16x16).
+      - Generated missing intermediate mip sizes (`96x96`, `72x72`, `24x24`, `20x20`) using high-quality bicubic resampling.
+    - **Deployed Everywhere**:
+      - Windows ICO (`build/icon.ico`) and Web favicon (`public/favicon.ico`) updated with all 8 mip levels: `256`, `128`, `64`, `48`, `32`, `24`, `20`, `16px`.
+      - High-res master `build/icon.png` (512x512) and `public/icon-512.png`, `public/icon-192.png`.
+      - Updated `public/icon.svg` and `public/favicon.svg` with embedded pixel-perfect v3 icon.
+      - Updated `src/components/LatticeLedgerLogo.tsx` with crisp embedded v3 logo.
+      - Updated Android launcher mipmaps across all densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+    - **Verified & Built Deliverables**:
+      - 103/103 automated tests passing.
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.06MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User tests the updated `LatticeLedger-Setup.exe` on Windows or `LatticeLedger.apk` on Android with the new hexagon-free thick L design.
+  - [ ] User tests the updated `LatticeLedger-Setup.exe` on Windows or `LatticeLedger.apk` on Android with the optimized v3 icons.
 
 ---
 
