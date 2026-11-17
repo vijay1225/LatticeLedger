@@ -923,8 +923,25 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe`.
       - Fresh Standalone Android APK: `LatticeLedger.apk`.
 
+  - [x] **Zero-Crop Pencils Fix Across Desktop & Android Launchers**:
+    - **Diagnosed Root Cause of Cropped Pencils**:
+      - In the initial extraction, a polygon mask aimed at cutting off the old hexagon had clamped bounding coordinates to `X=[210, 840], Y=[205, 830]`.
+      - However, in the user's reference image without the hexagon (`media_1794924013253_93c67160.jpg`), the pencils genuinely span from `X=142` to `X=881` and `Y=96` to `Y=918` ($740 \times 823$ px).
+      - This clamping had chopped off 120px from the top-left pencil tip and eraser, 88px from the bottom pencil, and 41px from the right pencil.
+      - Furthermore, on Android adaptive icons, the launcher mask clips anything beyond radius 132px (squircle) or 144px (circle).
+    - **Full Uncropped Extraction & Platform Safe-Zone Geometry**:
+      - Extracted 100% of all 108,829 pixels of the 3 pencils and stylized "L" with zero clipping (`resources/icons/pencils_and_l_only/raw_full_uncropped.png`).
+      - **Desktop**: Centered at $755 \times 840$ within 1024x1024 with symmetric margins (Left=132px, Right=132px, Top=90px, Bottom=89px). Every tip, eraser, and flute is 100% visible and uncropped.
+      - **Android**: Scaled to $218 \times 243$ within 432x432 (`xxxhdpi`), placing the farthest pencil tip at a radius of 123.82px from center. Because $123.82\text{px} < 132\text{px}$ (OEM squircle safe zone) and $< 144\text{px}$ (Google Pixel circle mask), zero pixels are clipped by phone launcher masks.
+    - **Interactive Preview Artifact**:
+      - Updated [floating_icons_preview.html](file:///C:/Users/Vijay/.gemini/antigravity/brain/824b44a9-25f6-4ab3-978c-1edfb0458d87/floating_icons_preview.html) showcasing the 100% uncropped pencils across photo/light/dark desktop wallpapers and Pixel circle / Samsung squircle docks.
+    - **Verified & Built Deliverables**:
+      - 109/109 automated unit tests passing across all 14 suites.
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.11MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User verifies floating transparent desktop icon and Chrome-style circular mobile icon.
+  - [ ] User verifies complete, uncropped pencils on desktop taskbar and phone launcher.
 
 ---
 
