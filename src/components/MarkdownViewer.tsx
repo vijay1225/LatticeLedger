@@ -194,12 +194,13 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
         const isShort = isYoutubeShort(src);
         elements.push(
           <div key={`embed-${i}`} className={`my-4 rounded-xl border border-zinc-800 bg-black overflow-hidden shadow-lg ${
-            isShort ? 'aspect-[9/16] max-w-[340px] mx-auto w-full' : 'aspect-video w-full'
+            isShort ? 'aspect-[9/16] max-w-[280px] mx-auto w-full' : 'aspect-video max-w-[480px] sm:max-w-[500px] mx-auto w-full'
           }`}>
             <iframe
               src={embedUrl}
               className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           </div>
@@ -244,12 +245,13 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
       const isShort = isYoutubeShort(trimmed);
       elements.push(
         <div key={`auto-embed-${i}`} className={`my-4 rounded-xl border border-zinc-800 bg-black overflow-hidden shadow-lg ${
-          isShort ? 'aspect-[9/16] max-w-[340px] mx-auto w-full' : 'aspect-video w-full'
+          isShort ? 'aspect-[9/16] max-w-[280px] mx-auto w-full' : 'aspect-video max-w-[480px] sm:max-w-[500px] mx-auto w-full'
         }`}>
           <iframe
             src={embedUrl}
             className="w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
         </div>
@@ -281,12 +283,13 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
         const isShort = isYoutubeShort(rawSrc) || trimmed.includes('data-is-short="true"');
         elements.push(
           <div key={`iframe-${i}`} className={`my-4 rounded-xl border border-zinc-800 bg-black overflow-hidden shadow-lg ${
-            isShort ? 'aspect-[9/16] max-w-[340px] mx-auto w-full' : 'aspect-video w-full'
+            isShort ? 'aspect-[9/16] max-w-[280px] mx-auto w-full' : 'aspect-video max-w-[480px] sm:max-w-[500px] mx-auto w-full'
           }`}>
             <iframe
               src={embedUrl}
               className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           </div>

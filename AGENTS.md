@@ -824,8 +824,29 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.10MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Journal Stream Uncluttering, Stationary Sticky Header & Compact YouTube Player (Error 153 Fix)**:
+    - **Journal Stream Clutter Elimination**:
+      - **Automatic Unwritten Day Removal**: Filtered `journalNotes` in `JournalsView.tsx` to strictly include notes with non-empty written content (`n.content && n.content.trim().length > 0`). Empty / unwritten days are automatically omitted from the stream. Today is always preserved at the top for zero-friction daily journaling.
+      - **Zero Ghost Entries**: In `App.tsx` (`handleSaveJournal`), if a day's note is emptied or completely cleared, it automatically deletes the note from memory and SQLite (`deleteNoteFromSql`). If an unwritten day is never filled, it never creates an empty ghost note.
+      - **Removed Distracting Action Buttons**: Removed the `+ TODO`, `• Bullet`, and `[[ ]]` buttons from every individual journal day header. Users type `- [ ] ` or `[] ` for task checklists, `* ` or `- ` for bullet lists, and `[[` for wiki link autocompletion directly in the editor without button clutter.
+      - **Stationary Top Header (No Movable)**: Wrapped the Journals header (title, "Today" jump button, "Select Date" button, and the quick search bar) in a sticky pinned header (`sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-md`) so controls remain fixed and accessible at the top during long stream scrolling.
+    - **YouTube Embed Player Configuration Error (Error 153) Resolution**:
+      - **Diagnosed Error 153 in Electron**: Electron running under `file://` sends no `Referer` or `Origin: null`. YouTube's embedded iframe player rejects requests lacking a valid HTTP/HTTPS referrer with Error 153 ("Video player configuration error").
+      - **Session Header Interception (`electron/main.cjs`)**: Added `session.defaultSession.webRequest.onBeforeSendHeaders` intercepting `*://*.youtube.com/*`, `*://*.youtube-nocookie.com/*`, and `*://*.googlevideo.com/*` to inject valid `Referer: https://www.youtube.com/` and `Origin: https://www.youtube.com` headers.
+      - **Privacy-Enhanced Nocookie Domain (`assetService.ts`)**: Upgraded `getYoutubeEmbedUrl` to always use `https://www.youtube-nocookie.com/embed/${ytId}`, bypassing third-party cookie restrictions.
+      - **Permissive Referrer Policy**: Added `referrerPolicy="strict-origin-when-cross-origin"` and full permissions (`allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"`) across `VideoNodeView.tsx`, `MarkdownViewer.tsx`, and `InsertMediaModal.tsx`.
+    - **Compact YouTube Player Sizing**:
+      - Scaled standard 16:9 YouTube video player from a full-page-width `max-w-4xl` (896px) down to an elegant, compact box (`max-w-[480px] sm:max-w-[500px]` with aspect-video, ~280px height) centered in the editor.
+      - Scaled YouTube Shorts to `max-w-[280px]` (aspect-[9/16]).
+      - Users can now comfortably watch embedded videos and write extensive notes, bullet points, and thoughts directly underneath without endless scrolling.
+    - **Verified & Built Deliverables**:
+      - 106/106 automated unit tests passing across all 13 suites.
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe`.
+      - Fresh Standalone Android APK: `LatticeLedger.apk`.
+
 - [ ] **Next Steps**:
-  - [ ] User tests targeted Quick Note navigation from Search, Wiki Pages, and Knowledge Graph on Windows or Android.
+  - [ ] User tests uncluttered Journals stream and compact YouTube video embeds on Windows or Android.
 
 ---
 

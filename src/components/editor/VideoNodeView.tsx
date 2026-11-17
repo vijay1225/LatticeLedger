@@ -32,9 +32,9 @@ export const VideoNodeView: React.FC<any> = ({ node, deleteNode }) => {
   const embedUrl = isEmbed ? getYoutubeEmbedUrl(node.attrs.src) : '';
 
   return (
-    <NodeViewWrapper className="video-node my-6 text-center select-none group relative">
-      <div className={`relative mx-auto rounded-xl border border-zinc-800 bg-black shadow-xl overflow-hidden ${
-        isShort ? 'max-w-[340px]' : 'max-w-4xl'
+    <NodeViewWrapper className="video-node my-4 text-center select-none group relative">
+      <div className={`relative mx-auto rounded-xl border border-zinc-800 bg-black shadow-lg overflow-hidden ${
+        isShort ? 'max-w-[280px]' : 'max-w-[480px] sm:max-w-[500px]'
       }`}>
         {/* Floating action pill on hover */}
         <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-950/85 backdrop-blur-md p-1 rounded-lg border border-zinc-800 shadow-md">
@@ -70,7 +70,7 @@ export const VideoNodeView: React.FC<any> = ({ node, deleteNode }) => {
             ) : (
               <>
                 <Tv className="w-3 h-3 text-indigo-400" />
-                <span className="text-indigo-300 font-medium">YouTube Embed (16:9)</span>
+                <span className="text-indigo-300 font-medium">YouTube (16:9)</span>
               </>
             )}
           </div>
@@ -81,7 +81,8 @@ export const VideoNodeView: React.FC<any> = ({ node, deleteNode }) => {
             <iframe
               src={embedUrl}
               className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           </div>
@@ -90,7 +91,7 @@ export const VideoNodeView: React.FC<any> = ({ node, deleteNode }) => {
             <video
               controls
               src={resolvedSrc}
-              className="w-full max-h-[500px] object-contain bg-black"
+              className="w-full max-h-[380px] object-contain bg-black"
             >
               Your browser does not support the video tag.
             </video>

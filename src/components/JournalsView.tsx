@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Calendar, 
-  CheckSquare, 
   Plus, 
   Search, 
   Trash2, 
   ArrowUpCircle, 
-  Link2,
   Check
 } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -232,6 +230,10 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
     if (!ed) return;
     const raw = (ed.storage as any).markdown?.getMarkdown() || ed.getText();
     const clean = getCleanMarkdown(raw);
+    if (!clean.trim() && !hasExistingNote) {
+      setSaveStatus('idle');
+      return;
+    }
     onSave(dateKey, clean, displayTitle);
     setSaveStatus('saved');
     setJustSaved(true);
@@ -454,22 +456,26 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
       if (editorRef.current) {
         const raw = (editorRef.current.storage as any)?.markdown?.getMarkdown() || editorRef.current.getText() || '';
         const clean = getCleanMarkdown(raw);
-        onSave(dateKey, clean, displayTitle);
+        if (clean.trim() || hasExistingNote) {
+          onSave(dateKey, clean, displayTitle);
+        }
       }
     };
-  }, []);
+  }, [dateKey, displayTitle, hasExistingNote, onSave]);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (editorRef.current) {
         const raw = (editorRef.current.storage as any)?.markdown?.getMarkdown() || editorRef.current.getText() || '';
         const clean = getCleanMarkdown(raw);
-        onSave(dateKey, clean, displayTitle);
+        if (clean.trim() || hasExistingNote) {
+          onSave(dateKey, clean, displayTitle);
+        }
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [dateKey]);
+  }, [dateKey, displayTitle, hasExistingNote, onSave]);
 
   // Handle clicking [[Wiki Links]] directly inside the editor
   const handleEditorClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -514,37 +520,6 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
     }
   };
 
-  const handleInsertTodo = () => {
-    if (!editor) return;
-    const isDocEmpty = editor.isEmpty;
-    if (isDocEmpty) {
-      editor.chain().focus().insertContent('- [ ] ').run();
-    } else {
-      editor.chain().focus().insertContent('\n- [ ] ').run();
-    }
-  };
-
-  const handleInsertBullet = () => {
-    if (!editor) return;
-    const isDocEmpty = editor.isEmpty;
-    if (isDocEmpty) {
-      editor.chain().focus().insertContent('- ').run();
-    } else {
-      editor.chain().focus().insertContent('\n- ').run();
-    }
-  };
-
-  const handleInsertWikiLink = () => {
-    if (!editor) return;
-    const { from, to } = editor.state.selection;
-    if (from !== to) {
-      const selected = editor.state.doc.textBetween(from, to);
-      editor.chain().focus().insertContent(`[[${selected}]]`).run();
-    } else {
-      editor.chain().focus().insertContent('[[').run();
-    }
-  };
-
   return (
     <div className="w-full relative group/day">
       {/* Day Header */}
@@ -571,8 +546,8 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
           )}
         </div>
 
-        {/* Subtle Day Toolbar */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* Subtle Day Status & Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
           {saveStatus === 'saving' && (
             <span className="text-[11px] text-zinc-500 mr-1 animate-pulse">
               Saving...
@@ -585,44 +560,12 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
             </span>
           )}
 
-          {/* + TODO */}
-          <button
-            type="button"
-            onClick={handleInsertTodo}
-            className="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-amber-300 hover:text-amber-200 text-xs font-medium flex items-center gap-1 transition-colors shadow-sm"
-            title="Insert checklist TODO"
-          >
-            <CheckSquare className="w-3 h-3 text-amber-400" />
-            <span>+ TODO</span>
-          </button>
-
-          {/* • Bullet */}
-          <button
-            type="button"
-            onClick={handleInsertBullet}
-            className="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-medium transition-colors shadow-sm"
-            title="Insert bullet point"
-          >
-            <span>• Bullet</span>
-          </button>
-
-          {/* [[ ]] */}
-          <button
-            type="button"
-            onClick={handleInsertWikiLink}
-            className="px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-indigo-300 hover:text-indigo-200 text-xs font-medium flex items-center gap-1 transition-colors shadow-sm"
-            title="Insert Wiki Link reference"
-          >
-            <Link2 className="w-3 h-3 text-indigo-400" />
-            <span>[[ ]]</span>
-          </button>
-
           {/* Delete Day Note if exists in database */}
           {hasExistingNote && onDelete && (
             <button
               type="button"
               onClick={onDelete}
-              className="p-1 rounded text-zinc-600 hover:text-rose-400 transition-colors ml-1"
+              className="p-1 rounded text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors ml-1 cursor-pointer"
               title="Delete this day's entry"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -685,8 +628,8 @@ export const JournalsView: React.FC<JournalsViewProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const todaySectionRef = useRef<HTMLDivElement | null>(null);
 
-  // Filter notes that are journals
-  const journalNotes = notes.filter(n => n.type === 'journal');
+  // Filter notes that are journals and have non-empty written content (removes unwritten days automatically)
+  const journalNotes = notes.filter(n => n.type === 'journal' && n.content && n.content.trim().length > 0);
 
   // Map of dateKey -> Note
   const journalMap = new Map<string, Note>();
@@ -696,9 +639,12 @@ export const JournalsView: React.FC<JournalsViewProps> = ({
     journalMap.set(key, n);
   });
 
-  // Collect all unique date keys to display in reverse chronological order
+  // Collect all unique date keys to display in reverse chronological order:
+  // 1. Always keep Today at the top for zero-friction daily writing
+  // 2. Only include other days if they actually contain written notes (no clutter)
+  // 3. Include custom selected date if user explicitly picked one via date picker
   const allDateKeysSet = new Set<string>();
-  allDateKeysSet.add(todayKey); // Always include Today at the top
+  allDateKeysSet.add(todayKey);
   journalMap.forEach((_, key) => allDateKeysSet.add(key));
 
   if (selectedCustomDate) {
@@ -726,67 +672,67 @@ export const JournalsView: React.FC<JournalsViewProps> = ({
   return (
     <div 
       ref={containerRef}
-      className="flex-1 h-full overflow-y-auto block select-text px-4 sm:px-8 lg:px-14 py-8 pb-36 md:pb-24 max-w-4xl mx-auto w-full text-xs"
+      className="flex-1 h-full overflow-y-auto block select-text px-4 sm:px-8 lg:px-14 py-4 pb-36 md:pb-24 max-w-4xl mx-auto w-full text-xs"
     >
-      {/* Top Header & Navigation Bar */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-emerald-400" />
-            <span>Journals & Daily Stream</span>
-          </h1>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Logseq-style continuous canvas with real-time markdown.
-          </p>
-        </div>
+      {/* Top Header & Navigation Bar - Stationary / Sticky (No Movable) */}
+      <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-md pt-4 pb-4 mb-6 border-b border-zinc-800/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-emerald-400" />
+              <span>Journals & Daily Stream</span>
+            </h1>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Logseq-style continuous canvas with real-time markdown.
+            </p>
+          </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Jump to Today */}
-          <button
-            type="button"
-            onClick={handleJumpToToday}
-            className="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-sm"
-            title="Jump to Today's Journal"
-          >
-            <ArrowUpCircle className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Today</span>
-          </button>
-
-          {/* Add Specific Past/Future Date */}
-          <div className="relative">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Jump to Today */}
             <button
               type="button"
-              onClick={() => setShowDatePicker(!showDatePicker)}
-              className="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-sm"
-              title="Add or Jump to Specific Date"
+              onClick={handleJumpToToday}
+              className="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+              title="Jump to Today's Journal"
             >
-              <Plus className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Select Date</span>
+              <ArrowUpCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Today</span>
             </button>
 
-            {showDatePicker && (
-              <div className="absolute right-0 mt-2 z-30 p-3 rounded-xl bg-zinc-900 border border-zinc-800 shadow-xl space-y-2 w-56 animate-in fade-in">
-                <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
-                  Choose Date:
-                </label>
-                <input
-                  type="date"
-                  value={selectedCustomDate}
-                  onChange={(e) => {
-                    setSelectedCustomDate(e.target.value);
-                    setShowDatePicker(false);
-                  }}
-                  className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-100 text-xs focus:outline-none focus:border-indigo-500 font-mono"
-                />
-              </div>
-            )}
+            {/* Add Specific Past/Future Date */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white font-medium text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                title="Add or Jump to Specific Date"
+              >
+                <Plus className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Select Date</span>
+              </button>
+
+              {showDatePicker && (
+                <div className="absolute right-0 mt-2 z-30 p-3 rounded-xl bg-zinc-900 border border-zinc-800 shadow-xl space-y-2 w-56 animate-in fade-in">
+                  <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                    Choose Date:
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedCustomDate}
+                    onChange={(e) => {
+                      setSelectedCustomDate(e.target.value);
+                      setShowDatePicker(false);
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-100 text-xs focus:outline-none focus:border-indigo-500 font-mono"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Quick Search in Journals */}
-      <div className="mb-8">
-        <div className="relative">
+        {/* Quick Search in Journals */}
+        <div className="mt-3.5 relative">
           <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
           <input
             type="text"

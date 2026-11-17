@@ -638,12 +638,21 @@ export function App() {
 
   const handleSaveJournal = (dateKey: string, content: string, title?: string) => {
     const cleanContent = content.trim();
+    const id = `journal-${dateKey}`;
+    const existing = notes.find(n => n.id === id);
+
+    // If day's note is empty or completely cleared, remove unwritten day automatically
+    if (!cleanContent) {
+      if (existing) {
+        handleDeleteJournal(id);
+      }
+      return;
+    }
+
     const extractedTags = extractTags(cleanContent);
     const extractedLinks = extractWikiLinks(cleanContent);
-    const id = `journal-${dateKey}`;
     const noteTitle = title || dateKey;
 
-    const existing = notes.find(n => n.id === id);
     if (existing) {
       handleUpdateNote(id, {
         content: cleanContent,

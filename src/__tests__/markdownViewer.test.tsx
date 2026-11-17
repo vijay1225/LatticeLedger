@@ -60,7 +60,7 @@ describe('MarkdownViewer Component', () => {
     const { container } = render(<MarkdownViewer content={markdown} />);
     const iframe = container.querySelector('iframe');
     expect(iframe).toBeDefined();
-    expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/vxmv3snAkig');
+    expect(iframe?.getAttribute('src')).toBe('https://www.youtube-nocookie.com/embed/vxmv3snAkig');
   });
 
   it('auto-embeds standalone YouTube Shorts link into video player', () => {
@@ -69,7 +69,7 @@ describe('MarkdownViewer Component', () => {
     const { container } = render(<MarkdownViewer content={markdown} />);
     const iframe = container.querySelector('iframe');
     expect(iframe).toBeDefined();
-    expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/vxmv3snAkig');
+    expect(iframe?.getAttribute('src')).toBe('https://www.youtube-nocookie.com/embed/vxmv3snAkig');
   });
 
   it('renders HTML5 video elements', () => {

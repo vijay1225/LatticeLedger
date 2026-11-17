@@ -345,7 +345,7 @@ export function extractYoutubeVideoId(url: string): string | null {
   if (shortMatch) return shortMatch[1];
 
   // 4. Embed URL: /embed/VIDEO_ID
-  const embedMatch = clean.match(/(?:youtube\.com|youtu\.be)\/embed\/([a-zA-Z0-9_-]{6,15})/i);
+  const embedMatch = clean.match(/(?:youtube\.com|youtu\.be|youtube-nocookie\.com)\/embed\/([a-zA-Z0-9_-]{6,15})/i);
   if (embedMatch) return embedMatch[1];
 
   // 5. Live Stream URL: /live/VIDEO_ID
@@ -366,6 +366,7 @@ export function getYoutubeThumbnailUrl(url: string): string | null {
 
 /**
  * Convert any YouTube URL (Shorts, standard watch, share, live) or Vimeo link into a secure, responsive embed URL.
+ * Uses privacy-enhanced youtube-nocookie.com to prevent cookie/referrer restrictions.
  */
 export function getYoutubeEmbedUrl(url: string): string {
   if (!url) return '';
@@ -374,11 +375,14 @@ export function getYoutubeEmbedUrl(url: string): string {
   // YouTube (including Shorts!)
   const ytId = extractYoutubeVideoId(clean);
   if (ytId) {
-    return `https://www.youtube.com/embed/${ytId}`;
+    return `https://www.youtube-nocookie.com/embed/${ytId}`;
   }
 
   // Already an embed URL
-  if (clean.includes('youtube.com/embed/')) return clean;
+  if (clean.includes('youtube.com/embed/')) {
+    return clean.replace('youtube.com/embed/', 'youtube-nocookie.com/embed/');
+  }
+  if (clean.includes('youtube-nocookie.com/embed/')) return clean;
 
   // Vimeo https://vimeo.com/VIDEO_ID
   const vimeoMatch = clean.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)/i) || clean.match(/vimeo\.com\/(\d+)/i);

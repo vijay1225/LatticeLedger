@@ -71,7 +71,7 @@ describe('JournalsView Continuous Canvas', () => {
     expect(hrs.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders action buttons (+ TODO, • Bullet, [[ ]]) for journal entry', () => {
+  it('excludes cluttering action buttons (+ TODO, • Bullet, [[ ]]) and keeps stationary header', () => {
     const handleSave = vi.fn();
     const handleDelete = vi.fn();
     const handleNavigate = vi.fn();
@@ -85,13 +85,18 @@ describe('JournalsView Continuous Canvas', () => {
       />
     );
 
-    const todoButtons = screen.getAllByTitle(/Insert checklist TODO/i);
-    expect(todoButtons.length).toBeGreaterThan(0);
+    // Verify cluttering buttons are removed
+    const todoButtons = screen.queryAllByTitle(/Insert checklist TODO/i);
+    expect(todoButtons.length).toBe(0);
 
-    const bulletButtons = screen.getAllByTitle(/Insert bullet point/i);
-    expect(bulletButtons.length).toBeGreaterThan(0);
+    const bulletButtons = screen.queryAllByTitle(/Insert bullet point/i);
+    expect(bulletButtons.length).toBe(0);
 
-    const linkButtons = screen.getAllByTitle(/Insert Wiki Link reference/i);
-    expect(linkButtons.length).toBeGreaterThan(0);
+    const linkButtons = screen.queryAllByTitle(/Insert Wiki Link reference/i);
+    expect(linkButtons.length).toBe(0);
+
+    // Verify stationary header controls exist
+    expect(screen.getByTitle(/Jump to Today's Journal/i)).toBeDefined();
+    expect(screen.getByTitle(/Add or Jump to Specific Date/i)).toBeDefined();
   });
 });

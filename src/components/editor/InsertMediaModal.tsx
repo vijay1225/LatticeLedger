@@ -320,7 +320,8 @@ export const InsertMediaModal: React.FC<InsertMediaModalProps> = ({
                           <iframe
                             src={embedUrl}
                             className="w-full h-full border-0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                           />
                         </div>
