@@ -757,27 +757,22 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Verified install while `LatticeLedger.exe` was actively running: killed process cleanly, upgraded, and exited with ExitCode 0.
       - 103/103 automated tests passing.
       - Built fresh `LatticeLedger-Setup.exe` (144.88MB).
-  - [x] **Official Application Icon & Cross-Platform Branding (Maximized Transparent Hexagonal Lattice + Orbiting Pencils + Intertwined L)**:
-    - **Visual Motif**:
-      - 6-Node Hexagonal Lattice maximized to occupy almost 100% of the canvas bounds.
-      - 3 Orbiting Pencils in a rotational flow around the center.
-      - Central intertwined **"L"** monogram: the rigid node-and-stick Lattice 'L' intertwined with the cursive flourish Ledger loop 'L'.
-      - 100% transparent background with subtle dark occlusion under-strokes, engineered for high contrast across both dark and light Windows Task Manager and Taskbar themes.
-    - **Windows Desktop Application Icon**:
-      - Generated multi-resolution `build/icon.ico` containing 256, 128, 64, 48, 32, 24, and 16px mip levels.
-      - Generated master `build/icon.png` (512x512).
-    - **Android Mobile Launcher & Adaptive Icons**:
-      - Generated launcher icons (`ic_launcher.png`), circular launcher icons (`ic_launcher_round.png`), and adaptive foreground icons (`ic_launcher_foreground.png`) across all densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
-    - **Web / Favicon Assets & In-App Branding**:
-      - Generated `public/favicon.ico`, `public/favicon.svg`, `public/icon.svg`, `public/icon-192.png`, and `public/icon-512.png`.
-      - Updated `<LatticeLedgerLogo />` (`src/components/LatticeLedgerLogo.tsx`) with the new vector mark.
-    - **Verification & Deliverables**:
+  - [x] **Zero-Margin Edge-to-Edge Icon Scaling & Taskbar High-Res Enhancement (`Downloads/app_icons_max_fill`)**:
+    - **Eliminated Background Padding**:
+      - Detected root cause of "low-res" taskbar appearance: raw exported PNGs contained ~25%-40% transparent padding around the glyph. In small 24px and 16px slots, the actual symbol shrank to ~14px and ~10px, looking tiny and blurry.
+      - Ingested icons from `c:\Users\Vijay\Downloads\app_icons_max_fill` and tightly cropped the bounding box (`X: 251..996`, `Y: 218..866`).
+      - Scaled content to **100% full-bleed edge-to-edge bounds** with zero horizontal/vertical margin waste (`16x14` in 16x16, `24x21` in 24x24, `32x28` in 32x32).
+    - **Recompiled Assets**:
+      - Updated `build/icon.ico` with full-bleed `16`, `20`, `24`, `32`, `48`, `64`, `128`, and `256px` mip levels.
+      - Updated `build/icon.png` (512x512) and `public/icon-*.png`.
+      - Updated all Android launcher mipmaps across `mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`.
+    - **Verified & Built Deliverables**:
       - 103/103 automated tests passing.
-      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (144.97MB).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.04MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
 - [ ] **Next Steps**:
-  - [ ] User installs the updated `LatticeLedger-Setup.exe` on Windows or `LatticeLedger.apk` on Android to enjoy the new maximized icon.
+  - [ ] User installs the updated `LatticeLedger-Setup.exe` on Windows or `LatticeLedger.apk` on Android to enjoy the zero-margin high-res icon.
 
 ---
 
