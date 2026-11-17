@@ -886,8 +886,26 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.10MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Pristine Reference-Derived High-Resolution Desktop Icon Generation**:
+    - **Diagnosed Why Previous Desktop Icon Looked Pixelated**:
+      - In the previous build, we directly packaged the pre-downscaled PNG files provided in `final_app_icons_no_star_v3`.
+      - Those PNGs suffered from thin 1-2px vector strokes being decimated during low-resolution rasterization, causing broken strokes on the right-hand diagonal hexagon edges and pencil flutes at 16x16, 24x24, 32x32, and 48x48.
+      - In addition, transparent backgrounds caused anti-aliased white edge pixels to blend weakly into light taskbars/wallpapers, appearing jagged and pixelated.
+    - **Generated Clean Master from Reference Image**:
+      - Sourced directly from the clean 1024x1024 reference image with solid black background (`user_reference_black.jpg`).
+      - Cleanly erased the bottom-right AI sparkle/star to pure black (`#000000`), preserving the user's "no-star" requirement.
+      - Applied high-quality bicubic supersampling across all standard desktop and taskbar resolutions: 16×16, 20×20, 24×24, 32×32, 48×48, 64×64, 128×128, 256×256, and 512×512.
+      - Generated multi-resolution `build/icon.ico` (36.4KB) and `public/favicon.ico`.
+      - Synced Android launcher icons with the clean master.
+      - Created [desktop_icon_comparison.html](file:///C:/Users/Vijay/.gemini/antigravity/brain/824b44a9-25f6-4ab3-978c-1edfb0458d87/desktop_icon_comparison.html) for side-by-side inspection at 1x and 4x magnification.
+    - **Verified & Built Deliverables**:
+      - 109/109 automated unit tests passing across all 14 suites.
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.15MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User verifies Journal delete button position on phone/desktop and confirms complete uncropped icon display on phone home screen.
+  - [ ] User verifies updated desktop icon sharpness and Android launcher icon.
 
 ---
 

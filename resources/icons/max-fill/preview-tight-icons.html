@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LatticeLedger - Zero-Margin High-Res Taskbar Icon Preview</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --cyan: #00f2fe;
+      --amber: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 30px 20px 80px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    h1 {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff, #00f2fe, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .badge-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Comparison Banner */
+    .compare-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .compare-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .compare-card.winner {
+      border-color: #00f2fe;
+      background: linear-gradient(180deg, rgba(0, 242, 254, 0.08) 0%, #111827 100%);
+    }
+
+    /* Windows 11 Taskbar */
+    .taskbar-dark {
+      background: rgba(24, 24, 27, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      margin-bottom: 24px;
+      height: 52px;
+    }
+    .taskbar-light {
+      background: rgba(243, 243, 243, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 14px;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+      margin-bottom: 32px;
+      height: 52px;
+    }
+    .tb-win-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tb-item {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .taskbar-dark .tb-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .taskbar-light .tb-item:hover { background: rgba(0, 0, 0, 0.06); }
+    .tb-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: #00f2fe;
+    }
+    .tb-item img, .tb-item svg {
+      width: 24px;
+      height: 24px;
+    }
+    .tb-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(150, 150, 150, 0.2);
+      margin: 0 4px;
+    }
+
+    /* Windows 11 Task Manager Simulator */
+    .tm-window {
+      background: #202020;
+      border-radius: 12px;
+      border: 1px solid #333333;
+      overflow: hidden;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+      margin-bottom: 28px;
+      font-size: 13px;
+    }
+    .tm-titlebar {
+      background: #191919;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2d2d2d;
+    }
+    .tm-title {
+      font-size: 12px;
+      color: #cccccc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    .tm-table-header {
+      display: grid;
+      grid-template-columns: 320px 90px 90px 90px 1fr;
+      padding: 8px 16px;
+      background: #252525;
+      color: #888888;
+      font-size: 11px;
+      font-weight: 600;
+      border-bottom: 1px solid #333333;
+    }
+    .tm-row {
+      display: grid;
+      grid-template-columns: 320px 90px 90px 90px 1fr;
+      padding: 7px 16px;
+      align-items: center;
+      border-bottom: 1px solid #282828;
+      transition: background 0.15s;
+    }
+    .tm-row:hover {
+      background: #2b2b2b;
+    }
+    .tm-row.highlight {
+      background: rgba(0, 242, 254, 0.08);
+      border-left: 3px solid #00f2fe;
+    }
+    .tm-app-col {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+    .tm-app-col img {
+      width: 16px;
+      height: 16px;
+    }
+    .tm-stat {
+      color: #a3a3a3;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    /* Checkerboard */
+    .checker-bg {
+      background-color: #121824;
+      background-image: 
+        linear-gradient(45deg, #182133 25%, transparent 25%), 
+        linear-gradient(-45deg, #182133 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #182133 75%), 
+        linear-gradient(-45deg, transparent 75%, #182133 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    }
+
+    /* Grid */
+    .res-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .res-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .res-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #00f2fe;
+      background: rgba(0, 242, 254, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .res-viewbox {
+      width: 120px;
+      height: 120px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    /* Zoomed Pixel Inspector */
+    .zoom-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .zoom-box {
+      background: #000000;
+      border: 1px solid #333333;
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .zoom-box img {
+      image-rendering: pixelated;
+      margin-bottom: 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Zero-Margin High-Resolution Taskbar Icons</h1>
+      <p class="subtitle">Cropped to <strong>100% full-bleed edge-to-edge content</strong> so icons pop at maximum crispness in Windows Taskbar & Task Manager</p>
+      <div class="badge-notice">
+        ⚡ 0 Empty Background Margins • 100% Canvas Utilization • Pixel-Perfect at 16px, 20px, 24px, 32px
+      </div>
+    </header>
+
+    <!-- Before & After Comparison -->
+    <div class="section-title">
+      <span>⚖️ Before vs. After (Why Removing Background Margins Fixes "Low-Res" Appearance)</span>
+    </div>
+    <div class="compare-banner">
+      <div class="compare-card">
+        <h3 style="color: #ef4444; margin-bottom: 6px;">❌ With Background Margins (Old)</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 16px;">Only ~60% of the canvas was used. In a 24px taskbar slot, the symbol shrank to ~14px, looking tiny and blurry.</p>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100px; background: #000; border-radius: 10px; border: 1px dashed #444;">
+          <img src="max_fill_icon_32x32.png" width="24" height="24" style="border: 1px solid red;">
+          <span style="font-size: 0.75rem; color: #ef4444; margin-left: 10px;">24px (Shallow symbol)</span>
+        </div>
+      </div>
+
+      <div class="compare-card winner">
+        <h3 style="color: #00f2fe; margin-bottom: 6px;">✅ Zero-Margin Tight Scaling (New)</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 16px;">Content fills 100% of the canvas width (X: 0 to 23). Uses every single pixel of the 24px slot for maximum sharpness.</p>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100px; background: #000; border-radius: 10px; border: 1px dashed #00f2fe;">
+          <img src="tight/icon_24x24.png" width="24" height="24" style="border: 1px solid #00f2fe;">
+          <span style="font-size: 0.75rem; color: #00f2fe; margin-left: 10px;">24px (Full-bleed edge-to-edge!)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Windows 11 Taskbar Previews -->
+    <div class="section-title">
+      <span>🌙 Windows 11 Dark Taskbar (True 24px Scale)</span>
+    </div>
+    <div class="taskbar-dark">
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#00a4ef"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <!-- New Tight Icon at 24px -->
+      <div class="tb-item active" title="LatticeLedger (New Zero-Margin Tight 24px)">
+        <img src="tight/icon_24x24.png" width="24" height="24" alt="New Tight 24px">
+      </div>
+      <!-- Old with Margin -->
+      <div class="tb-item" title="Old with Margin (for comparison)">
+        <img src="max_fill_icon_32x32.png" width="24" height="24" alt="Old with Margin" style="opacity: 0.5;">
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>☀️ Windows 11 Light Taskbar (True 24px Scale)</span>
+    </div>
+    <div class="taskbar-light">
+      <div class="tb-win-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="#0078d4"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"/></svg>
+      </div>
+      <div class="tb-item" title="File Explorer">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div class="tb-item" title="VS Code">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path fill="#007acc" d="M23.5 2.5L16 9.5 9 4.5 4 8.5v15l5 4 7-5 7.5 7 4.5-2.5v-22z"/></svg>
+      </div>
+      <div class="tb-divider"></div>
+
+      <div class="tb-item active" title="LatticeLedger (New Zero-Margin Tight 24px)">
+        <img src="tight/icon_24x24.png" width="24" height="24" alt="New Tight 24px">
+      </div>
+      <div class="tb-item" title="Old with Margin">
+        <img src="max_fill_icon_32x32.png" width="24" height="24" alt="Old with Margin" style="opacity: 0.5;">
+      </div>
+    </div>
+
+    <!-- 2. Windows 11 Task Manager Simulator -->
+    <div class="section-title">
+      <span>📊 Windows 11 Task Manager (Processes Tab — True 16×16px Icon)</span>
+    </div>
+    <div class="tm-window">
+      <div class="tm-titlebar">
+        <div class="tm-title">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="#00f2fe"><rect x="1" y="2" width="14" height="12" rx="2" fill="none" stroke="#00f2fe" stroke-width="1.5"/><line x1="1" y1="6" x2="15" y2="6" stroke="#00f2fe" stroke-width="1.5"/><line x1="5" y1="9" x2="8" y2="12" stroke="#00f2fe" stroke-width="1.5"/><line x1="8" y1="12" x2="12" y2="8" stroke="#00f2fe" stroke-width="1.5"/></svg>
+          Task Manager
+        </div>
+        <span style="font-size: 11px; color: #777;">Processes &bull; 39% CPU &bull; 51% Memory</span>
+      </div>
+
+      <div class="tm-table-header">
+        <span>Name</span>
+        <span>Status</span>
+        <span>CPU</span>
+        <span>Memory</span>
+        <span>Disk</span>
+      </div>
+
+      <!-- LatticeLedger Active Process Row with 16x16 PNG -->
+      <div class="tm-row highlight">
+        <div class="tm-app-col">
+          <img src="tight/icon_16x16.png" alt="16px icon" width="16" height="16">
+          <span style="font-weight: 600;">LatticeLedger (Zero-Margin Tight)</span>
+          <span style="font-size: 10px; color: #00f2fe; padding: 1px 6px; border-radius: 4px; background: rgba(0, 242, 254, 0.15); margin-left: 4px;">HIGH RESOLUTION</span>
+        </div>
+        <span class="tm-stat" style="color: #10b981;">Running</span>
+        <span class="tm-stat">0.2%</span>
+        <span class="tm-stat">82.4 MB</span>
+        <span class="tm-stat">0.1 MB/s</span>
+      </div>
+
+      <!-- Comparison Row with Old 16px -->
+      <div class="tm-row">
+        <div class="tm-app-col">
+          <img src="max_fill_icon_16x16.png" alt="old 16px" width="16" height="16" style="opacity: 0.6;">
+          <span style="color: #888;">LatticeLedger (Old with background padding)</span>
+        </div>
+        <span class="tm-stat" style="color: #10b981;">Running</span>
+        <span class="tm-stat">0.2%</span>
+        <span class="tm-stat">82.4 MB</span>
+        <span class="tm-stat">0.1 MB/s</span>
+      </div>
+
+      <div class="tm-row">
+        <div class="tm-app-col">
+          <svg viewBox="0 0 32 32" width="16" height="16"><path fill="#f59e0b" d="M4 8h8l3 3h13a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></svg>
+          <span>Windows Explorer</span>
+        </div>
+        <span class="tm-stat" style="color: #10b981;">Running</span>
+        <span class="tm-stat">1.1%</span>
+        <span class="tm-stat">128.5 MB</span>
+        <span class="tm-stat">0.3 MB/s</span>
+      </div>
+    </div>
+
+    <!-- 3. Resolution Matrix -->
+    <div class="section-title">
+      <span>📐 Zero-Margin Density Matrix (100% Canvas Fill)</span>
+    </div>
+    <div class="res-grid">
+      <div class="res-card">
+        <span class="res-badge">16 × 16 px</span>
+        <div class="res-viewbox checker-bg">
+          <img src="tight/icon_16x16.png" width="16" height="16" alt="16px">
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">Task Manager (16x14 filled)</span>
+      </div>
+
+      <div class="res-card">
+        <span class="res-badge">24 × 24 px</span>
+        <div class="res-viewbox checker-bg">
+          <img src="tight/icon_24x24.png" width="24" height="24" alt="24px">
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">Taskbar Small (24x21 filled)</span>
+      </div>
+
+      <div class="res-card">
+        <span class="res-badge">32 × 32 px</span>
+        <div class="res-viewbox checker-bg">
+          <img src="tight/icon_32x32.png" width="32" height="32" alt="32px">
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">Taskbar Standard (32x28 filled)</span>
+      </div>
+
+      <div class="res-card">
+        <span class="res-badge">48 × 48 px</span>
+        <div class="res-viewbox checker-bg">
+          <img src="tight/icon_48x48.png" width="48" height="48" alt="48px">
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">Desktop Medium (48x42 filled)</span>
+      </div>
+
+      <div class="res-card">
+        <span class="res-badge">64 × 64 px</span>
+        <div class="res-viewbox checker-bg">
+          <img src="tight/icon_64x64.png" width="64" height="64" alt="64px">
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">High-DPI Desktop</span>
+      </div>
+
+      <div class="res-card">
+        <span class="res-badge">256 × 256 px</span>
+        <div class="res-viewbox checker-bg">
+          <img src="tight/icon_256x256.png" width="100" height="100" alt="256px">
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">Master ICO Tier</span>
+      </div>
+    </div>
+
+    <!-- 4. Zoomed Pixel Inspector -->
+    <div class="section-title">
+      <span>🔍 Zoomed Pixel Inspector (Pixel-by-Pixel Verification)</span>
+    </div>
+    <div class="zoom-grid">
+      <div class="zoom-box">
+        <img src="tight/icon_16x16.png" width="128" height="128" alt="16px Zoomed">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #00f2fe;">16×16 px (Zoomed 800%)</span>
+        <span style="font-size: 0.75rem; color: #888; margin-top: 4px;">Fills edge-to-edge horizontally</span>
+      </div>
+
+      <div class="zoom-box">
+        <img src="tight/icon_24x24.png" width="144" height="144" alt="24px Zoomed">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #00f2fe;">24×24 px (Zoomed 600%)</span>
+        <span style="font-size: 0.75rem; color: #888; margin-top: 4px;">Taskbar Scale (Crisp, bold lines)</span>
+      </div>
+
+      <div class="zoom-box">
+        <img src="tight/icon_32x32.png" width="160" height="160" alt="32px Zoomed">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #00f2fe;">32×32 px (Zoomed 500%)</span>
+        <span style="font-size: 0.75rem; color: #888; margin-top: 4px;">Sharp stroke definitions</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

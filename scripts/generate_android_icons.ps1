@@ -1,6 +1,6 @@
 Add-Type -AssemblyName System.Drawing
 
-$srcPath = "C:\Users\Vijay\.gemini\antigravity\brain\824b44a9-25f6-4ab3-978c-1edfb0458d87\v3_icons\icon_v3_1024x1024.png"
+$srcPath = "C:\Users\Vijay\Documents\LatticeLedger\resources\icons\master_reference_no_star.png"
 if (-not (Test-Path $srcPath)) {
     $srcPath = "build/icon.png"
 }

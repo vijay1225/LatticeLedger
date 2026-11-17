@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Crisp Ambient Occlusion Shield (Ensures 100% contrast on Dark & Light backgrounds) -->
+    <filter id="thickShield" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- 100% TRANSPARENT CANVAS - ZERO MARGIN EDGE-TO-EDGE -->
+
+  <!-- Subtle Dark Shadow Under-Stroke for Contrast Shielding -->
+  <g stroke="#000000" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.65">
+    <polygon points="256,20 460,138 460,374 256,492 52,374 52,138"/>
+    <line x1="216" y1="175" x2="216" y2="338"/>
+    <line x1="216" y1="338" x2="300" y2="338"/>
+  </g>
+
+  <!-- 1. Thick Outer Hexagonal Frame (Fills full 512x512 canvas) -->
+  <polygon points="256,20 460,138 460,374 256,492 52,374 52,138" 
+           stroke="#ffffff" 
+           stroke-width="26" 
+           fill="none" 
+           stroke-linejoin="round"
+           filter="url(#thickShield)"/>
+
+  <!-- 6 Large Bold Vertex Nodes (r=28) -->
+  <g fill="#ffffff" filter="url(#thickShield)">
+    <circle cx="256" cy="20" r="28"/>
+    <circle cx="460" cy="138" r="28"/>
+    <circle cx="460" cy="374" r="28"/>
+    <circle cx="256" cy="492" r="28"/>
+    <circle cx="52" cy="374" r="28"/>
+    <circle cx="52" cy="138" r="28"/>
+  </g>
+
+  <!-- 2. Three Stylized Orbiting Pencils (Filling the space boldly) -->
+
+  <!-- Top-Left Pencil (Rotated ~-35°) -->
+  <g transform="translate(180, 142) rotate(-35)" filter="url(#thickShield)">
+    <!-- Eraser Dome -->
+    <path d="M -56 -15 C -70 -15, -72 15, -56 15 Z" fill="#ffffff"/>
+    <!-- Ferrule Gap -->
+    <rect x="-54" y="-15" width="9" height="30" fill="#000000"/>
+    <!-- Pencil Body -->
+    <rect x="-43" y="-15" width="72" height="30" fill="#ffffff" rx="2"/>
+    <!-- Center Slit (Pencil Facet Definition) -->
+    <rect x="-39" y="-4" width="64" height="8" fill="#000000"/>
+    <!-- Wood Cone Collar -->
+    <polygon points="29,-15 62,0 29,15" fill="#ffffff"/>
+    <!-- Graphite Lead Tip -->
+    <polygon points="46,-7.5 62,0 46,7.5" fill="#000000"/>
+  </g>
+
+  <!-- Right Pencil (Vertical, pointing straight down) -->
+  <g transform="translate(366, 256) rotate(90)" filter="url(#thickShield)">
+    <path d="M -64 -15 C -78 -15, -80 15, -64 15 Z" fill="#ffffff"/>
+    <rect x="-62" y="-15" width="9" height="30" fill="#000000"/>
+    <rect x="-51" y="-15" width="78" height="30" fill="#ffffff" rx="2"/>
+    <rect x="-47" y="-4" width="70" height="8" fill="#000000"/>
+    <polygon points="27,-15 62,0 27,15" fill="#ffffff"/>
+    <polygon points="46,-7.5 62,0 46,7.5" fill="#000000"/>
+  </g>
+
+  <!-- Bottom-Left Pencil (Rotated ~35°, tip pointing down-left) -->
+  <g transform="translate(180, 370) rotate(35)" filter="url(#thickShield)">
+    <!-- Pointed Tip on Left -->
+    <polygon points="-62,0 -27,-15 -27,15" fill="#ffffff"/>
+    <polygon points="-62,0 -46,-7.5 -46,7.5" fill="#000000"/>
+    <!-- Body -->
+    <rect x="-27" y="-15" width="78" height="30" fill="#ffffff" rx="2"/>
+    <rect x="-23" y="-4" width="70" height="8" fill="#000000"/>
+    <!-- Ferrule Gap -->
+    <rect x="53" y="-15" width="9" height="30" fill="#000000"/>
+    <!-- Eraser Dome on Right -->
+    <path d="M 64 -15 C 78 -15, 80 15, 64 15 Z" fill="#ffffff"/>
+  </g>
+
+  <!-- 3. Central L Monogram (Thicker & Prominent: Rigid L + Cursive Loop) -->
+
+  <!-- Rigid Lattice L (24px thick stem & foot) -->
+  <g stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#thickShield)">
+    <line x1="216" y1="175" x2="216" y2="338"/>
+    <line x1="216" y1="338" x2="300" y2="338"/>
+  </g>
+
+  <!-- Three L Nodes (r=20) -->
+  <g fill="#ffffff" filter="url(#thickShield)">
+    <circle cx="216" cy="175" r="20"/>
+    <circle cx="216" cy="338" r="20"/>
+    <circle cx="300" cy="338" r="20"/>
+  </g>
+
+  <!-- Intertwined Cursive Ledger Flourish Loop (22px thick) -->
+  <path d="M 200 275 
+           C 250 275, 302 248, 308 190 
+           C 310 152, 276 152, 252 188 
+           C 226 226, 220 282, 254 338" 
+        stroke="#ffffff" 
+        stroke-width="22" 
+        stroke-linecap="round" 
+        fill="none" 
+        filter="url(#thickShield)"/>
+
+</svg>

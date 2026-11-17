@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Pure Diamond White Glow Filter -->
+    <filter id="whiteGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="metalBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="35%" stop-color="#94a3b8"/>
+      <stop offset="60%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <linearGradient id="silverFerrule" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e2e8f0"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- STANDALONE ICON - 100% TRANSPARENT CANVAS -->
+
+  <!-- Subtle Dark Occlusion Halo for Light Mode/Task Manager Visibility -->
+  <path d="M 256 46 L 438 151 L 438 361 L 256 466 L 74 361 L 74 151 Z" 
+        stroke="rgba(0,0,0,0.7)" stroke-width="26" fill="none" stroke-linejoin="round"/>
+
+  <!-- 1. Glowing Neon Hexagon Frame -->
+  <path d="M 256 46 L 438 151 L 438 361 L 256 466 L 74 361 L 74 151 Z" 
+        stroke="#ffffff" 
+        stroke-width="18" 
+        fill="none" 
+        stroke-linejoin="round"
+        filter="url(#whiteGlow)"/>
+
+  <!-- Thin Orbital Ring -->
+  <circle cx="256" cy="256" r="142" 
+          stroke="rgba(255, 255, 255, 0.45)" 
+          stroke-width="3" 
+          stroke-dasharray="10 8" 
+          fill="none"/>
+
+  <!-- Hexagonal Ripple Nodes (6 Vertices) -->
+  <!-- Top -->
+  <circle cx="256" cy="46" r="32" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" fill="none"/>
+  <circle cx="256" cy="46" r="24" stroke="rgba(255, 255, 255, 0.5)" stroke-width="3" fill="none"/>
+  <circle cx="256" cy="46" r="16" fill="#ffffff" filter="url(#whiteGlow)"/>
+
+  <!-- Top-Right -->
+  <circle cx="438" cy="151" r="32" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" fill="none"/>
+  <circle cx="438" cy="151" r="24" stroke="rgba(255, 255, 255, 0.5)" stroke-width="3" fill="none"/>
+  <circle cx="438" cy="151" r="16" fill="#ffffff" filter="url(#whiteGlow)"/>
+
+  <!-- Bottom-Right -->
+  <circle cx="438" cy="361" r="32" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" fill="none"/>
+  <circle cx="438" cy="361" r="24" stroke="rgba(255, 255, 255, 0.5)" stroke-width="3" fill="none"/>
+  <circle cx="438" cy="361" r="16" fill="#ffffff" filter="url(#whiteGlow)"/>
+
+  <!-- Bottom -->
+  <circle cx="256" cy="466" r="32" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" fill="none"/>
+  <circle cx="256" cy="466" r="24" stroke="rgba(255, 255, 255, 0.5)" stroke-width="3" fill="none"/>
+  <circle cx="256" cy="466" r="16" fill="#ffffff" filter="url(#whiteGlow)"/>
+
+  <!-- Bottom-Left -->
+  <circle cx="74" cy="361" r="32" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" fill="none"/>
+  <circle cx="74" cy="361" r="24" stroke="rgba(255, 255, 255, 0.5)" stroke-width="3" fill="none"/>
+  <circle cx="74" cy="361" r="16" fill="#ffffff" filter="url(#whiteGlow)"/>
+
+  <!-- Top-Left -->
+  <circle cx="74" cy="151" r="32" stroke="rgba(255, 255, 255, 0.25)" stroke-width="2" fill="none"/>
+  <circle cx="74" cy="151" r="24" stroke="rgba(255, 255, 255, 0.5)" stroke-width="3" fill="none"/>
+  <circle cx="74" cy="151" r="16" fill="#ffffff" filter="url(#whiteGlow)"/>
+
+
+  <!-- 2. Orbiting Pencils (Graphite Titanium Finish) -->
+
+  <!-- Pencil 1: Top-Left -->
+  <g transform="translate(190, 160) rotate(-35)">
+    <path d="M -45 -11 C -53 -11, -55 11, -45 11 Z" fill="#e2e8f0"/>
+    <rect x="-44" y="-11" width="10" height="22" fill="url(#silverFerrule)" rx="2"/>
+    <rect x="-34" y="-11" width="56" height="22" fill="url(#metalBody)" rx="2"/>
+    <line x1="-34" y1="-2" x2="22" y2="-2" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+    <polygon points="22,-11 44,0 22,11" fill="#cbd5e1"/>
+    <polygon points="34,-5 44,0 34,5" fill="#0f172a"/>
+  </g>
+
+  <!-- Pencil 2: Right (Vertical) -->
+  <g transform="translate(345, 256) rotate(90)">
+    <path d="M -50 -11 C -58 -11, -60 11, -50 11 Z" fill="#e2e8f0"/>
+    <rect x="-49" y="-11" width="10" height="22" fill="url(#silverFerrule)" rx="2"/>
+    <rect x="-39" y="-11" width="62" height="22" fill="url(#metalBody)" rx="2"/>
+    <line x1="-39" y1="-2" x2="23" y2="-2" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+    <polygon points="23,-11 47,0 23,11" fill="#cbd5e1"/>
+    <polygon points="36,-5 47,0 36,5" fill="#0f172a"/>
+  </g>
+
+  <!-- Pencil 3: Bottom-Left -->
+  <g transform="translate(190, 350) rotate(35)">
+    <polygon points="-47,0 -23,-11 -23,11" fill="#cbd5e1"/>
+    <polygon points="-47,0 -36,-5 -36,5" fill="#0f172a"/>
+    <rect x="-23" y="-11" width="62" height="22" fill="url(#metalBody)" rx="2"/>
+    <line x1="-23" y1="-2" x2="39" y2="-2" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+    <rect x="39" y="-11" width="10" height="22" fill="url(#silverFerrule)" rx="2"/>
+    <path d="M 49 -11 C 57 -11, 59 11, 49 11 Z" fill="#e2e8f0"/>
+  </g>
+
+
+  <!-- 3. Central L Monogram (Pure Luminous Diamond Neon) -->
+  
+  <!-- Lattice L -->
+  <g filter="url(#whiteGlow)">
+    <line x1="228" y1="195" x2="228" y2="312" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+    <line x1="228" y1="312" x2="288" y2="312" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+    
+    <circle cx="228" cy="195" r="14" fill="#ffffff"/>
+    <circle cx="228" cy="312" r="14" fill="#ffffff"/>
+    <circle cx="288" cy="312" r="14" fill="#ffffff"/>
+  </g>
+
+  <!-- Ledger Cursive Loop -->
+  <path d="M 218 268 
+           C 255 268, 290 250, 292 205 
+           C 294 175, 268 175, 252 200 
+           C 236 225, 230 270, 254 312" 
+        stroke="#ffffff" 
+        stroke-width="15" 
+        stroke-linecap="round" 
+        fill="none" 
+        filter="url(#whiteGlow)"/>
+
+  <!-- Halo Highlights on Loop Nodes -->
+  <circle cx="228" cy="195" r="22" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" fill="none"/>
+  <circle cx="228" cy="312" r="22" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" fill="none"/>
+  <circle cx="288" cy="312" r="22" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" fill="none"/>
+
+</svg>
