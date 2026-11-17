@@ -13,11 +13,14 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Markdown } from 'tiptap-markdown';
+import { DOMParser } from 'prosemirror-model';
 
 import { Note } from '../types';
 import { CustomCodeBlockNode, CustomImageNode, CustomVideoNode } from './editor/editorExtensions';
 import { WikiLinkSuggestionPopup } from './editor/WikiLinkSuggestionPopup';
 import { saveAsset, getYoutubeEmbedUrl, isVideoEmbedUrl, isYoutubeShort } from '../services/assetService';
+import { isMarkdownText } from '../utils/wikiLinks';
+import { convertMarkdownToHtml } from '../utils/markdownParser';
 
 interface JournalsViewProps {
   notes: Note[];
@@ -349,6 +352,32 @@ const JournalDayCanvas = React.memo<JournalDayCanvasProps>(({
             return true;
           }
         }
+
+        // 4. Paste Markdown formatted text (e.g. from notes, tasks, or code blocks)
+        const rawText = event.clipboardData?.getData('text/plain');
+        if (rawText && isMarkdownText(rawText)) {
+          event.preventDefault();
+          const parsedHtml = convertMarkdownToHtml(rawText);
+          if (parsedHtml) {
+            if ((view as any).editor?.commands?.insertContent) {
+              (view as any).editor.commands.insertContent(parsedHtml);
+              return true;
+            }
+            try {
+              const tempEl = document.createElement('div');
+              tempEl.innerHTML = parsedHtml;
+              const slice = DOMParser.fromSchema(view.state.schema).parseSlice(tempEl, {
+                preserveWhitespace: true,
+              });
+              const tr = view.state.tr.replaceSelection(slice);
+              view.dispatch(tr);
+              return true;
+            } catch (err) {
+              console.warn('[JournalsView] Markdown paste error:', err);
+            }
+          }
+        }
+
         return false;
       },
       handleKeyDown: (_view, event) => {

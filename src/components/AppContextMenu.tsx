@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Copy, Check, Clipboard, Scissors, CornerDownLeft } from 'lucide-react';
+import { isMarkdownText } from '../utils/wikiLinks';
+import { convertMarkdownToHtml } from '../utils/markdownParser';
 
 interface MenuState {
   isOpen: boolean;
@@ -271,6 +273,26 @@ export const AppContextMenu: React.FC = () => {
       if (navigator.clipboard && navigator.clipboard.readText) {
         const text = await navigator.clipboard.readText();
         if (text) {
+          const target = menu.targetElement;
+          const prosemirror = target?.closest?.('.tiptap.ProseMirror') as HTMLElement | null;
+
+          // If pasting into TipTap WYSIWYG editor and text contains markdown formatting:
+          if (prosemirror && isMarkdownText(text)) {
+            try {
+              const html = convertMarkdownToHtml(text);
+              if (html) {
+                // Try execCommand('insertHTML') which triggers ProseMirror's HTML DOM parser
+                const inserted = document.execCommand('insertHTML', false, html);
+                if (inserted) {
+                  setMenu(prev => ({ ...prev, isOpen: false }));
+                  return;
+                }
+              }
+            } catch (err) {
+              console.warn('[ContextMenu] insertHTML markdown paste fallback:', err);
+            }
+          }
+
           document.execCommand('insertText', false, text);
         }
       }

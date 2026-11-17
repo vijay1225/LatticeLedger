@@ -113,7 +113,9 @@ export function isMarkdownText(text: string): boolean {
   const hasHeading = /^#{1,6}\s+\S/m.test(trimmed);
   const hasList = /^(\s*[-*+]|\s*\d+\.)\s+\S/m.test(trimmed);
   const hasTaskList = /^\s*[-*+]\s+\[[ xX]\]\s+\S/m.test(trimmed);
+  const hasLooseTaskList = /^\s*\[[ xX]?\]\s+\S/m.test(trimmed);
   const hasBoldOrItalic = /(\*\*|__)[^\s*].*?\1|(\*|_)[^\s*].*?\2/.test(trimmed);
+  const hasStrikethrough = /~~[^~\n]+~~/.test(trimmed);
   const hasBlockquote = /^>\s+\S/m.test(trimmed);
   const hasCodeFence = /```[\s\S]*?```/.test(trimmed);
   const hasInlineCode = /`[^`\n]+`/.test(trimmed);
@@ -126,7 +128,9 @@ export function isMarkdownText(text: string): boolean {
     hasHeading ||
     hasList ||
     hasTaskList ||
+    hasLooseTaskList ||
     hasBoldOrItalic ||
+    hasStrikethrough ||
     hasBlockquote ||
     hasCodeFence ||
     hasInlineCode ||

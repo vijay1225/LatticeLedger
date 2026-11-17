@@ -940,8 +940,50 @@ LatticeLedger is a modern, AI-augmented Personal Knowledge Management (PKM) syst
       - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.11MB).
       - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
 
+  - [x] **Automatic Markdown Paste-to-WYSIWYG Preview Engine**:
+    - **Diagnosed Why Pasting Markdown Text Was Showing Raw Text**:
+      - **Root Cause 1 (Right-Click / Long-Press Paste in `AppContextMenu.tsx`)**: In the context menu, clicking "Paste" called `document.execCommand('insertText', false, text)`. This bypassed the paste pipeline and inserted raw text characters directly into the DOM without triggering TipTap's markdown conversion.
+      - **Root Cause 2 (Daily Journal in `JournalsView.tsx`)**: `JournalsView`'s editor had zero markdown paste handling in `editorProps.handlePaste`, causing all pasted markdown in journals to render as raw plaintext.
+      - **Root Cause 3 (TipTap `tiptap-markdown` plainText rejection)**: `tiptap-markdown`'s internal `clipboardTextParser` intentionally checks `if (plainText) return null`, refusing to parse plain-text clipboard data copied from external text editors, IDEs, code blocks, or `.md` files.
+      - **Root Cause 4 (`isMarkdownText` edge cases)**: Loose task lists without dash (`[] task` or `[ ] task`) and strikethroughs (`~~text~~`) were evaluated as false, causing markdown blocks to fall back to raw text.
+    - **Unified Markdown-to-HTML Conversion Engine (`src/utils/markdownParser.ts`)**:
+      - Built `convertMarkdownToHtml(markdown)` powered by `markdown-it` and `markdown-it-task-lists`.
+      - Normalizes loose checkboxes (`[] task` -> `- [ ] task`) and outputs TipTap-compliant HTML schemas (`<ul data-type="taskList"><li data-type="taskItem" data-checked="false"><p>...</p></li></ul>`, `<h1>`-`<h3>`, `<strong>`, `<em>`, `<blockquote>`, `<pre><code>`).
+    - **Universal Integration Across All Editors**:
+      - **`NoteEditor.tsx`**: In `handlePaste`, converts pasted markdown into rich HTML and inserts via `DOMParser.fromSchema(view.state.schema).parseSlice()` as native ProseMirror nodes. If pasting into an untitled page, automatically extracts the first `# Page Title`.
+      - **`JournalsView.tsx`**: Integrated identical markdown paste handler, enabling seamless WYSIWYG formatting in Daily Journals.
+      - **`AppContextMenu.tsx`**: When pasting into `.tiptap.ProseMirror`, automatically converts markdown to HTML and executes `document.execCommand('insertHTML', false, html)`, ensuring right-click on Windows and long-press on Android immediately format markdown into live preview.
+      - **`wikiLinks.ts`**: Expanded `isMarkdownText` to catch loose task lists (`[]`, `[ ]`), strikethroughs (`~~`), and multi-line structures.
+    - **Verified & Built Deliverables**:
+      - 117/117 automated unit tests passing across all 16 test suites (`markdownParser.test.ts` and `noteEditorPaste.test.tsx` added).
+      - Web production build verified (`npm run build`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe`.
+      - Fresh Standalone Android APK: `LatticeLedger.apk`.
+
+  - [x] **New Reference App Icon Deployment & Zero-Cropping Multi-Resolution Architecture**:
+    - **User's Reference Image (`media_1794924013253_93c67160.jpg`) Ingestion**:
+      - Erased the Gemini spark watermark (`✦`) in the bottom-right corner (region 860..1024 wiped 100% clean).
+      - Extracted high-contrast white vector strokes (pencils + L) on 100% transparent background with anti-aliased subpixel alpha curves.
+      - Exact tight content bounding box: $740 \times 823$ centered within 1024x1024 master.
+    - **Windows Desktop Zero-Pixelation & Transparent Floating Design**:
+      - Removed the solid black square box so the icon floats freely on desktop, taskbar, and start menu (Chrome / VS Code style).
+      - Added subtle 2px dark outer contour/glow so white pencils pop with ultra-high contrast on light/white wallpapers while looking sleek on dark wallpapers.
+      - Built True Windows `.ico` with 256x256 PNG + uncompressed 32-bit DIB bitmaps (with `BITMAPINFOHEADER` and BGRA bottom-to-top scanlines) for 128, 64, 48, 32, 24, 20, and 16.
+      - Windows Explorer, taskbar, and NSIS installer render native pre-scaled bitmaps directly with zero pixelation or nearest-neighbor blur.
+    - **Android Adaptive Icon Safe-Zone Geometry (Zero Pencil Cropping Guarantee)**:
+      - Max radius ratio of pencils to content height is 0.5088.
+      - Scaled foreground height to 55% of canvas ($237\text{px}$ on 432px xxxhdpi canvas), placing the farthest pencil tip at a radius of 121.07px from center.
+      - Because $121.07\text{px} < 132\text{px}$ (OEM squircle safe zone) and $< 144\text{px}$ (Google Pixel circle mask), 100% of all 3 pencils are completely within the safe zone with a 10.9px breathing cushion. Zero pencil cropping across all Android phones.
+      - Generated circular dark badges with sleek border rings for legacy launchers (`ic_launcher.png`, `ic_launcher_round.png`) so older launchers never show an ugly square box.
+    - **Interactive Preview Artifact**:
+      - Generated [app_icon_showcase.html](file:///C:/Users/Vijay/.gemini/antigravity/brain/824b44a9-25f6-4ab3-978c-1edfb0458d87/app_icon_showcase.html) demonstrating desktop transparency across wallpapers and Android circle/squircle masks.
+    - **Verified & Built Deliverables**:
+      - 115/115 automated unit tests passing across all 16 suites (`npm test -- --run`).
+      - Fresh Windows Setup Installer: `LatticeLedger-Setup.exe` (145.26MB).
+      - Fresh Standalone Android APK: `LatticeLedger.apk` (7.84MB).
+
 - [ ] **Next Steps**:
-  - [ ] User verifies complete, uncropped pencils on desktop taskbar and phone launcher.
+  - [ ] User verifies new uncropped, floating, crisp app icon on Windows Desktop and Android phone.
 
 ---
 

@@ -38,10 +38,12 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Markdown } from 'tiptap-markdown';
+import { DOMParser } from 'prosemirror-model';
 
 import { Note, FlashcardStage } from '../types';
 import { AISummaryCard } from './AISummaryCard';
 import { findBacklinks, findRelatedQuickNotes, extractWikiLinks, stripDuplicateTitleHeading, isMarkdownText } from '../utils/wikiLinks';
+import { convertMarkdownToHtml } from '../utils/markdownParser';
 import { CustomCodeBlockNode, CustomImageNode, CustomVideoNode } from './editor/editorExtensions';
 import { InsertMediaModal } from './editor/InsertMediaModal';
 import { WikiLinkSuggestionPopup } from './editor/WikiLinkSuggestionPopup';
@@ -492,12 +494,27 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             }
           }
 
-          const parser = editorRef.current?.storage?.markdown?.parser;
-          if (parser) {
-            const parsedHtml = parser.parse(textToParse);
-            if (parsedHtml) {
-              editorRef.current?.commands.insertContent(parsedHtml);
+          const parsedHtml = convertMarkdownToHtml(textToParse);
+          if (parsedHtml) {
+            if (editorRef.current?.commands?.insertContent) {
+              editorRef.current.commands.insertContent(parsedHtml);
               return true;
+            }
+            if ((view as any).editor?.commands?.insertContent) {
+              (view as any).editor.commands.insertContent(parsedHtml);
+              return true;
+            }
+            try {
+              const tempEl = document.createElement('div');
+              tempEl.innerHTML = parsedHtml;
+              const slice = DOMParser.fromSchema(view.state.schema).parseSlice(tempEl, {
+                preserveWhitespace: true,
+              });
+              const tr = view.state.tr.replaceSelection(slice);
+              view.dispatch(tr);
+              return true;
+            } catch (err) {
+              console.warn('[NoteEditor] DOMParser slice paste fallback:', err);
             }
           }
         }
